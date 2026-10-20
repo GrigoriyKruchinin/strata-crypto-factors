@@ -1,7 +1,7 @@
 [project]
 name = "strata"
-version = "0.1.0.dev0"
-description = "Systematic market-neutral factor portfolio for crypto perpetual futures"
+version = "1.0.0"
+description = "Crypto Factor Research Toolkit: cross-sectional factor research and simulation for crypto perpetual futures"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }

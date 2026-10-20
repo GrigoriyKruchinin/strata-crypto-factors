@@ -68,7 +68,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
 - [x] Paper vs backtest reconciliation on the same dates
 - [x] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
-- [ ] Paper trading runs ≥ 28 days — not completed: stopped after 1 day when the holdout result led to No-Go (2026-10-20)
+- [ ] Paper trading runs ≥ 28 days — not completed: stopped after 1 day following the holdout evaluation (2026-10-20)
 
 ### Go / No-Go criteria (agreed 2026-10-19, fixed before holdout)
 - [x] **Mandatory "plus to deposit"** (added 2026-10-20, before holdout was opened): net return on deposit after all costs and funding on unseen data is positive; reported as average net % per month; 1.5%/month is the reference level, final decision discussed with the user. Without this criterion the verdict cannot be Go — evaluated 2026-10-20: **FAIL −1.15%/month**
