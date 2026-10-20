@@ -68,7 +68,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 ### Paper trading and notifications
 - [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
 - [x] Paper vs backtest reconciliation on the same dates
-- [ ] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
+- [x] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
 - [ ] Paper trading runs ≥ 28 days
 
 ### Go / No-Go criteria (agreed 2026-10-19, fixed before holdout)

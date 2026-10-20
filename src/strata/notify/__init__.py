@@ -1,1 +1,1 @@
-"""Notify layer."""
+"""Notifications (Telegram)."""
