@@ -218,3 +218,30 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Strata project-specific ---
+# Secrets and keys
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Local data, historical dumps, database volumes
+data/
+!data/.gitkeep
+*.parquet
+*.feather
+*.zip
+*.csv.gz
+*.dump
+*.sql.gz
+pgdata/
+redis-data/
+
+# Research outputs (reports in docs/reports are committed; raw run artifacts are not)
+artifacts/
+runs/
+
+# Claude Code local settings
+.claude/settings.local.json
