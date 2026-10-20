@@ -28,11 +28,11 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [ ] DI container / factories wiring simulator, paper and (later) live gateways
 
 ### Storage and infra
-- [ ] SQLAlchemy async models: instruments (listing/delisting dates), candles, funding rates, universe snapshots, factor values, target portfolios, actual portfolios, trades, equity curve, experiment log
-- [ ] Alembic setup + initial migration (separate migrations container)
+- [x] SQLAlchemy async models: instruments (listing/delisting dates), candles, funding rates, universe snapshots, factor values, target portfolios, actual portfolios, trades, equity curve, experiment log
+- [x] Alembic setup + initial migration (separate migrations container)
 - [x] Redis + Celery app, beat schedule (daily refresh 00:15 UTC -> paper cycle -> notify; weekly rebalance inside cycle)
-- [ ] `docker-compose.local.yml`: postgres, redis, migrations, celery-beat, worker, data-loader, backtester, paper-trader, telegram-worker; healthchecks + `depends_on: service_healthy`; per-role env subsets
-- [ ] `docker compose -f docker-compose.local.yml config` passes; stack starts healthy
+- [x] `docker-compose.local.yml`: postgres, redis, migrations, celery-beat, worker, data-loader, backtester, paper-trader, telegram-worker; healthchecks + `depends_on: service_healthy`; per-role env subsets
+- [x] `docker compose -f docker-compose.local.yml config` passes; stack starts healthy
 
 ### Data
 - [x] Binance USDT-M adapter (public endpoints, httpx REST behind own interface, weight-based rate limiter)
