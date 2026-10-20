@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 import httpx
@@ -71,13 +71,19 @@ def _pipeline(random_runs: int | None = None) -> ResearchPipeline:
     )
 
 
+def _charts(pipeline: ResearchPipeline) -> Path:
+    written = pipeline.charts(Path("docs/reports/assets"))
+    return written[-1] if written else Path("docs/reports/assets")
+
+
 def _research(step: str, random_runs: int | None) -> int:
     pipeline = _pipeline(random_runs)
-    steps = {
+    steps: dict[str, Callable[[], Path]] = {
         "train": pipeline.train,
         "robustness": pipeline.robustness,
         "freeze": pipeline.freeze,
         "holdout": pipeline.holdout,
+        "charts": lambda: _charts(pipeline),
     }
     path = steps[step]()
     logger.info("research %s done: %s", step, path)
@@ -112,7 +118,7 @@ def build_parser() -> argparse.ArgumentParser:
     dl = sub.add_parser("download-history", help="download/refresh klines and funding history")
     dl.add_argument("--symbols", nargs="*", default=None, help="limit to these symbols")
     rs = sub.add_parser("research", help="run a step of the pre-registered research protocol")
-    rs.add_argument("step", choices=["train", "robustness", "freeze", "holdout"])
+    rs.add_argument("step", choices=["train", "robustness", "freeze", "holdout", "charts"])
     rs.add_argument("--random-runs", type=int, default=None)
     bt = sub.add_parser("backtest", help="backtest one grid spec on the train period (logged)")
     bt.add_argument("--spec", default="all_six")

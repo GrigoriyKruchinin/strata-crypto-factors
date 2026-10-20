@@ -21,6 +21,7 @@ from strata.backtest.metrics import (
 from strata.data.panel_builder import build_panel
 from strata.data.store import ParquetStore
 from strata.domain.panel import MarketPanel
+from strata.research.charts import equity_svg
 from strata.research.experiment_log import JsonlExperimentLog, git_version
 from strata.research.grid import candidate_grid
 from strata.research.holdout import HoldoutGuard
@@ -394,3 +395,35 @@ class ResearchPipeline:
                 "sharpe_check": sharpe(r),
             },
         )
+
+    # ------------------------------------------------------------------ report assets
+    def charts(self, out_dir: Path) -> list[Path]:
+        """Equity-vs-benchmark SVGs from the saved train/holdout return files."""
+        out_dir.mkdir(parents=True, exist_ok=True)
+        written: list[Path] = []
+        sources = {
+            "holdout": ("holdout_returns.csv", None, "Holdout: frozen primary vs benchmarks"),
+            "train": (
+                "train_returns.csv",
+                "train_benchmarks_returns.csv",
+                "Train: finalists vs benchmarks",
+            ),
+        }
+        finalists: list[str] = []
+        if (self.results_dir / "train.json").exists():
+            train = self._load("train")
+            finalists = [r["name"] for r in train["ranking"] if r["spec_id"] in train["finalists"]]
+        for name, (main_file, bench_file, title) in sources.items():
+            path = self.results_dir / main_file
+            if not path.exists():
+                continue
+            frame = pd.read_csv(path, index_col=0, parse_dates=True)
+            if name == "train" and finalists:
+                frame = frame[[c for c in finalists if c in frame.columns]]
+            if bench_file and (self.results_dir / bench_file).exists():
+                bench = pd.read_csv(self.results_dir / bench_file, index_col=0, parse_dates=True)
+                frame = frame.join(bench, how="left")
+            target = out_dir / f"equity-{name}.svg"
+            target.write_text(equity_svg(frame, title))
+            written.append(target)
+        return written

@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 
 from strata.domain.panel import MarketPanel
+from strata.research.charts import equity_svg
 from strata.research.experiment_log import JsonlExperimentLog
 from strata.research.holdout import HoldoutGuard, HoldoutViolationError
 from strata.research.runner import ResearchRunner
@@ -143,3 +144,13 @@ def test_random_signal_parallel_matches_serial() -> None:
     serial = random_signal_test(*args, runs=6, workers=1)
     parallel = random_signal_test(*args, runs=6, workers=3)
     np.testing.assert_allclose(serial.random_sharpes, parallel.random_sharpes)
+
+
+def test_equity_svg_renders_legend() -> None:
+    rets = pd.DataFrame(
+        {"a": [0.01] * 30, "b": [-0.01] * 30},
+        index=pd.date_range("2024-01-01", periods=30, freq="D", tz="UTC"),
+    )
+    svg = equity_svg(rets, "t & t")
+    assert svg.startswith("<svg") and "t &amp; t" in svg
+    assert "a (1.35x)" in svg and "b (0.74x)" in svg

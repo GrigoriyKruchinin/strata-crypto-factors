@@ -14,7 +14,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Git: `.gitignore`, `.env.example`, `origin`, first commit + push
 - [x] `README.md` header + `docs/assets/logo.svg`
 - [x] `docs/guides/stage-1-user-guide.md`
-- [ ] Admin dashboard credentials: user sets them in `.env` before Stage 3 (never in chat)
+- [x] Admin dashboard credentials: not needed (No-Go, no Stage 3)
 - [x] Wait for "Start Implementation"
 
 ## Stage 1 — MVP + research (no real money) · branch `stage-1-mvp`
@@ -25,7 +25,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Package layout (`src/strata/...`): domain, data, universe, factors, portfolio, costs, backtest, research, paper, notify, infra
 - [x] Modular Pydantic Settings: `AppSettings`, `DatabaseSettings`, `RedisSettings`, `ExchangeSettings`, `DataSettings`, `FactorSettings`, `PortfolioSettings`, `CostSettings`, `RiskSettings`, `TelegramSettings`, `ResearchSettings`
 - [x] Core interfaces: `IMarketDataSource`, `IUniverseProvider`, `IFactor`, `IPortfolioConstructor`, `ICostModel`, `IOrderGateway`, `IRiskRule`, `BaseExchangeAdapter`
-- [ ] DI container / factories wiring simulator, paper and (later) live gateways
+- [x] DI container / factories wiring simulator, paper and (later) live gateways (`strata.infra.container`)
 
 ### Storage and infra
 - [x] SQLAlchemy async models: instruments (listing/delisting dates), candles, funding rates, universe snapshots, factor values, target portfolios, actual portfolios, trades, equity curve, experiment log
@@ -70,28 +70,29 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
 - [x] Paper vs backtest reconciliation on the same dates
 - [x] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
-- [ ] Paper trading runs ≥ 28 days (account opened 2026-10-20 with $3000, strategy funding_carry_14 @0.83x; first rebalance after Sun 2026-10-25 close; 28 days after it ≈ 2026-11-23)
+- [ ] Paper trading runs ≥ 28 days — not completed: stopped after 1 day when the holdout result led to No-Go (2026-10-20)
 
 ### Go / No-Go criteria (agreed 2026-10-19, fixed before holdout)
-- [ ] **Mandatory "plus to deposit"** (added 2026-10-20, before holdout was opened): net return on deposit after all costs and funding on unseen data is positive; reported as average net % per month; 1.5%/month is the reference level, final decision discussed with the user. Without this criterion the verdict cannot be Go
-- [ ] Holdout net annual return ≥ 20% with max drawdown ≤ 25% (gross leverage ≤ 2x)
-- [ ] Holdout Sharpe ≥ 1.0 after costs and funding
-- [ ] Costs ×2: Sharpe ≥ 0.5
-- [ ] Real result > 95th percentile of random signals
-- [ ] No single coin > 15% of total profit
-- [ ] Positive in ≥ 60% of rolling 6-month windows
-- [ ] Paper trading ≥ 28 days, deviation from backtest on the same dates ≤ 25%
+- [x] **Mandatory "plus to deposit"** (added 2026-10-20, before holdout was opened): net return on deposit after all costs and funding on unseen data is positive; reported as average net % per month; 1.5%/month is the reference level, final decision discussed with the user. Without this criterion the verdict cannot be Go — evaluated 2026-10-20: **FAIL −1.15%/month**
+- [x] Holdout net annual return ≥ 20% with max drawdown ≤ 25% (gross leverage ≤ 2x) — evaluated 2026-10-20: **FAIL −12.9%, max DD 63.2%**
+- [x] Holdout Sharpe ≥ 1.0 after costs and funding — evaluated 2026-10-20: **FAIL −0.12**
+- [x] Costs ×2: Sharpe ≥ 0.5 — evaluated 2026-10-20: **FAIL −0.21**
+- [x] Real result > 95th percentile of random signals — evaluated 2026-10-20: **FAIL 60.7th**
+- [x] No single coin > 15% of total profit — evaluated 2026-10-20: **PASS 8.7%**
+- [x] Positive in ≥ 60% of rolling 6-month windows — evaluated 2026-10-20: **FAIL 44.4%**
+- [x] Paper trading ≥ 28 days, deviation from backtest on the same dates ≤ 25% — evaluated 2026-10-20: **not evaluated (stopped after No-Go)**
+
 
 ### Stage close
-- [ ] `docs/reports/stage-1-go-no-go.md` (metrics, equity vs BTC chart, best configs, variation count, validity checks, risks, recommendation, "Простыми словами" block)
+- [x] `docs/reports/stage-1-go-no-go.md` (metrics, equity vs BTC chart, best configs, variation count, validity checks, risks, recommendation, "Простыми словами" block)
 - [ ] `/audit-risks` clean
-- [ ] README updated (features, quick start, architecture, configuration, status badge)
-- [ ] `docs/guides/stage-2-user-guide.md` (only if Go)
+- [x] README updated (features, quick start, architecture, configuration, status badge)
+- [x] `docs/guides/stage-2-user-guide.md` (only if Go) — not applicable: No-Go
 - [ ] `chore: complete stage 1`, tag `v0.1.0`, merge to `main`, push
 
 ## Fork after Stage 1 — Go / Iterate / Research toolkit
 
-- [ ] Discuss `docs/reports/stage-1-go-no-go.md` with the user (plain Russian, honest)
+- [x] Discuss `docs/reports/stage-1-go-no-go.md` with the user (plain Russian, honest) — owner chose No-Go on 2026-10-20
 - [ ] Go → Stage 2 after explicit confirmation
 - [ ] Iterate → ≤ 2 iterations, goals and criteria recorded here, fresh unseen segment
 - [ ] No-Go (explicitly confirmed) → reposition as "Crypto Factor Research Toolkit" per `CLAUDE.md` protocol: README/CLAUDE.md/.claude/todo rewrite, remove execution code, **remove all Docker infrastructure** (compose, Dockerfile, Redis/Celery workers; local SQLite/Parquet storage, `uv run` + Makefile), CI for code quality only, verify clean install without Docker, tag `v1.0.0`
