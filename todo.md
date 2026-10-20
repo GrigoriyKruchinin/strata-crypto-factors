@@ -72,6 +72,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [ ] Paper trading runs ≥ 28 days
 
 ### Go / No-Go criteria (agreed 2026-10-19, fixed before holdout)
+- [ ] **Mandatory "plus to deposit"** (added 2026-10-20, before holdout was opened): net return on deposit after all costs and funding on unseen data is positive; reported as average net % per month; 1.5%/month is the reference level, final decision discussed with the user. Without this criterion the verdict cannot be Go
 - [ ] Holdout net annual return ≥ 20% with max drawdown ≤ 25% (gross leverage ≤ 2x)
 - [ ] Holdout Sharpe ≥ 1.0 after costs and funding
 - [ ] Costs ×2: Sharpe ≥ 0.5
@@ -92,7 +93,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [ ] Discuss `docs/reports/stage-1-go-no-go.md` with the user (plain Russian, honest)
 - [ ] Go → Stage 2 after explicit confirmation
 - [ ] Iterate → ≤ 2 iterations, goals and criteria recorded here, fresh unseen segment
-- [ ] No-Go (explicitly confirmed) → reposition as "Crypto Factor Research Toolkit" per `CLAUDE.md` protocol, tag `v1.0.0`
+- [ ] No-Go (explicitly confirmed) → reposition as "Crypto Factor Research Toolkit" per `CLAUDE.md` protocol: README/CLAUDE.md/.claude/todo rewrite, remove execution code, **remove all Docker infrastructure** (compose, Dockerfile, Redis/Celery workers; local SQLite/Parquet storage, `uv run` + Makefile), CI for code quality only, verify clean install without Docker, tag `v1.0.0`
 
 ## Stage 2 — Production, real money (only on Go) · branch `stage-2-prod`
 

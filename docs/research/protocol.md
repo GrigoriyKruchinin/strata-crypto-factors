@@ -36,3 +36,10 @@ Freeze finalists (`docs/research/frozen-candidates.json`), then evaluate the pri
 `L` on the holdout. Go/No-Go criteria from `todo.md` are evaluated on these holdout results
 (random-signal percentile and coin concentration also on the holdout). No parameter changes
 after the holdout is opened; any further iteration uses a new unseen segment.
+
+## Amendments
+
+- **2026-10-20 (before the holdout was opened):** added the mandatory "plus to deposit" criterion
+  from the revised project brief: average net monthly return on the holdout must be > 0 (hard
+  gate); 1.5%/month is the reference level and the final call is discussed with the owner.
+  Train results had been computed at this point; the holdout had not been touched.

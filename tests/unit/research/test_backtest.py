@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from strata.backtest.engine import BacktestConfig, Backtester, Rebalance
-from strata.backtest.metrics import compute_metrics, max_drawdown, sharpe
+from strata.backtest.metrics import compute_metrics, max_drawdown, monthly_return, sharpe
 from strata.costs.model import SquareRootImpactCostModel
 from strata.domain.interfaces import IFactor
 from strata.domain.panel import MarketPanel
@@ -142,3 +142,9 @@ def test_metric_helpers() -> None:
     m = compute_metrics(_bt(Momentum(14, 2)).run(panel))
     assert m.days == 120
     assert 0 <= m.max_coin_profit_share <= 1
+
+
+def test_monthly_return_matches_compounding() -> None:
+    daily = (1.015) ** (12 / 365.25) - 1
+    assert monthly_return(pd.Series([daily] * 730)) == pytest.approx(0.015, rel=1e-9)
+    assert monthly_return(pd.Series([-0.001] * 100)) < 0

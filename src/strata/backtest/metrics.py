@@ -11,6 +11,7 @@ import pandas as pd
 from strata.backtest.engine import BacktestResult
 
 ANNUALISATION = 365
+DAYS_PER_MONTH = 365.25 / 12
 
 
 def growth(returns: pd.Series) -> float:
@@ -32,6 +33,14 @@ def max_drawdown(returns: pd.Series) -> float:
     return float(-(curve / peak - 1.0).min()) if len(curve) else 0.0
 
 
+def monthly_return(returns: pd.Series) -> float:
+    """Geometric average net return per calendar month (the "plus to deposit" measure)."""
+    if returns.empty:
+        return 0.0
+    g = growth(returns)
+    return g ** (DAYS_PER_MONTH / len(returns)) - 1.0 if g > 0 else -1.0
+
+
 def cagr(returns: pd.Series) -> float:
     if returns.empty:
         return 0.0
@@ -44,6 +53,7 @@ def cagr(returns: pd.Series) -> float:
 class Metrics:
     days: int
     total_return: float
+    monthly_return: float
     annual_return: float
     annual_vol: float
     sharpe: float
@@ -87,6 +97,7 @@ def compute_metrics(result: BacktestResult) -> Metrics:
     return Metrics(
         days=len(r),
         total_return=growth(r) - 1.0,
+        monthly_return=monthly_return(r),
         annual_return=cagr(r),
         annual_vol=float(r.std(ddof=1) * math.sqrt(ANNUALISATION)) if len(r) > 1 else 0.0,
         sharpe=sharpe(r),

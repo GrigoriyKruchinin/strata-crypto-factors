@@ -51,8 +51,10 @@ FINALISTS = 3
 
 @dataclass(frozen=True)
 class GoCriteria:
-    """Agreed 2026-10-19 (todo.md). Fixed before the holdout is opened."""
+    """Agreed 2026-10-19 (+ deposit criterion 2026-10-20). Fixed before the holdout is opened."""
 
+    min_monthly_return_hard: float = 0.0  # mandatory: net plus to deposit
+    reference_monthly_return: float = 0.015  # discussed with the owner, not a hard gate
     min_annual_return: float = 0.20
     max_drawdown: float = 0.25
     min_sharpe: float = 1.0
@@ -72,6 +74,16 @@ def evaluate_criteria(
 ) -> dict[str, dict[str, Any]]:
     c = criteria or GoCriteria()
     checks = {
+        "plus_to_deposit": (
+            holdout.monthly_return,
+            f"> {c.min_monthly_return_hard:.0%} / month",
+            holdout.total_return > 0 and holdout.monthly_return > c.min_monthly_return_hard,
+        ),
+        "monthly_return_reference": (
+            holdout.monthly_return,
+            f">= {c.reference_monthly_return:.1%} / month (reference)",
+            holdout.monthly_return >= c.reference_monthly_return,
+        ),
         "annual_return": (
             holdout.annual_return,
             f">= {c.min_annual_return:.0%}",

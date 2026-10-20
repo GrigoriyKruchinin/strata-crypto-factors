@@ -26,6 +26,7 @@ Full spec of stages lives in `todo.md` and `docs/`; this file holds only what ev
 | Max drawdown (auto-stop) | 25% |
 | VPS budget (Stage 2) | ≤ $10/month |
 | Go/No-Go thresholds | defaults, see `todo.md` → "Go / No-Go criteria" |
+| "Plus to deposit" (mandatory) | net monthly return on unseen data > 0 (hard); 1.5%/month is the reference level, final call discussed with the user (agreed 2026-10-20) |
 
 ## Research discipline (non-negotiable)
 
@@ -83,7 +84,7 @@ After Stage 1 do **not** proceed automatically. Open `docs/reports/stage-1-go-no
 
 1. **Go** — all criteria met → write `docs/guides/stage-2-user-guide.md`, wait for user confirmation, start Stage 2.
 2. **Iterate** — borderline → at most 1–2 iterations; goals and criteria recorded in `todo.md`; viewed holdout is burned, use a fresh unseen segment (newer data + continued paper trading).
-3. **No-Go** → only after the user explicitly confirms "we won't develop it as an income source": reposition as **"Crypto Factor Research Toolkit"**. Rewrite `README.md` (neutral tone, exact Stage 1 results, no "pet"/"No-Go" wording), `CLAUDE.md` and `.claude/` (critic becomes "Security & Code Quality Critic", remove execution/live-trading skills and any mention of later stages), `todo.md` (drop Stages 2–3, add "Polish & docs"), remove live-execution code and trading env vars, ask whether to add an optional "Deployability showcase" (prod compose + CI + manual-only `deploy.yml`, no real deploy, static checks only, README "Deployment (reference)"). Add neutral `CHANGELOG.md` entry, tag `v1.0.0`, push, summarize in Russian. Nothing is deleted without explicit confirmation.
+3. **No-Go** → only after the user explicitly confirms "we won't develop it as an income source": reposition as **"Crypto Factor Research Toolkit"**. Rewrite `README.md` (neutral tone, exact Stage 1 results, no "pet"/"No-Go" wording; header style kept, status badge e.g. "research toolkit"), `CLAUDE.md` and `.claude/` (critic becomes "Security & Code Quality Critic", remove execution/live-trading skills and any mention of later stages), `todo.md` (drop Stages 2–3, add "Polish & docs"), remove live-execution code and trading env vars. **Remove all Docker infrastructure without asking**: compose files, Dockerfiles, `.dockerignore`, deploy/image workflows, Docker Makefile targets and every Docker mention in docs/guides/`.env.example`; drop server-only services (Redis/Celery, long-running workers); storage becomes local (SQLite or Parquet/CSV), run via `uv run ...` and `Makefile`; keep `.github/workflows/ci.yml` for ruff/mypy/pytest only; verify install + tests on a clean machine without Docker; no "Deployment" section in README. Neutral `CHANGELOG.md` entry, atomic commits (`docs: reposition project as research toolkit`, `chore: remove execution plans`, `chore: remove docker infrastructure`), tag `v1.0.0`, push, summarize in Russian. Nothing is deleted before the user's explicit confirmation of No-Go.
 
 ## Safety
 
