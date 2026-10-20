@@ -64,6 +64,7 @@ def _pipeline(random_runs: int | None = None) -> ResearchPipeline:
         research.artifacts_dir,
         random_runs=random_runs or research.random_signal_runs,
         seed=research.seed,
+        workers=research.workers,
     )
 
 

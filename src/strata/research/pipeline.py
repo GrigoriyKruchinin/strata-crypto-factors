@@ -124,6 +124,7 @@ class ResearchPipeline:
         *,
         random_runs: int = 1000,
         seed: int = 42,
+        workers: int = 1,
         grid: list[StrategySpec] | None = None,
     ) -> None:
         self.store = ParquetStore(data_root)
@@ -132,6 +133,7 @@ class ResearchPipeline:
         self.artifacts_dir = artifacts_dir
         self.random_runs = random_runs
         self.seed = seed
+        self.workers = workers
         self.grid = grid if grid is not None else candidate_grid()
         self.log = JsonlExperimentLog(research_dir / "experiment-log.jsonl")
         self.guard = HoldoutGuard(HOLDOUT_START.date(), research_dir)
@@ -262,6 +264,7 @@ class ResearchPipeline:
                 base.metrics.sharpe,
                 runs=self.random_runs,
                 seed=self.seed,
+                workers=self.workers,
             )
             excl = top_coin_exclusion(runner, base, TRAIN_START, TRAIN_END, label="train")
             bench = benchmark_returns(self.panel, spec, TRAIN_START, TRAIN_END)
@@ -333,6 +336,7 @@ class ResearchPipeline:
             main.metrics.sharpe,
             runs=self.random_runs,
             seed=self.seed,
+            workers=self.workers,
         )
         excl = top_coin_exclusion(runner, main, HOLDOUT_START, hold_end, label=HOLDOUT)
         bench = benchmark_returns(self.panel, spec, HOLDOUT_START, hold_end)

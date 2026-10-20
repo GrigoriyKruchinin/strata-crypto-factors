@@ -100,6 +100,7 @@ class ResearchSettings(_Base):
     train_end: date = date(2023, 12, 31)
     holdout_start: date = date(2024, 1, 1)
     random_signal_runs: int = 1000
+    workers: int = 6
     seed: int = 42
     artifacts_dir: Path = Path("artifacts")
 

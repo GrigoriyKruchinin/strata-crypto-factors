@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import multiprocessing
 from collections.abc import Sequence
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -47,6 +50,28 @@ class RandomSignalResult:
         return float(np.percentile(self.random_sharpes, 95))
 
 
+_WORKER: dict[str, Any] = {}
+
+
+def _init_worker(state: dict[str, Any]) -> None:
+    """Keys: bt, view, membership, start, end, seed (inherited by forked workers)."""
+    _WORKER.update(state)
+
+
+def _random_sharpe(run_id: int) -> float:
+    view: MarketPanel = _WORKER["view"]
+    bt: Backtester = _WORKER["bt"]
+    # Seed per run (not per worker): results do not depend on how runs are split.
+    rng = np.random.default_rng([_WORKER["seed"], run_id])
+    scores = pd.DataFrame(
+        rng.random(view.close.shape), index=view.dates, columns=view.close.columns
+    )
+    result = bt.run(
+        view, _WORKER["start"], _WORKER["end"], scores=scores, membership=_WORKER["membership"]
+    )
+    return sharpe(result.returns)
+
+
 def random_signal_test(
     spec: StrategySpec,
     panel: MarketPanel,
@@ -56,6 +81,7 @@ def random_signal_test(
     *,
     runs: int = 1000,
     seed: int = 42,
+    workers: int = 1,
 ) -> RandomSignalResult:
     """Same universe, construction and costs, with uniformly random ranks each date.
 
@@ -64,13 +90,23 @@ def random_signal_test(
     view = panel.truncate(end + pd.Timedelta(days=1))
     bt = spec.build_backtester()
     membership = bt.universe.membership(view)
-    rng = np.random.default_rng(seed)
-    shape = view.close.shape
-    sharpes = np.empty(runs)
-    for i in range(runs):
-        scores = pd.DataFrame(rng.random(shape), index=view.dates, columns=view.close.columns)
-        result = bt.run(view, start, end, scores=scores, membership=membership)
-        sharpes[i] = sharpe(result.returns)
+    state = {
+        "bt": bt,
+        "view": view,
+        "membership": membership,
+        "start": start,
+        "end": end,
+        "seed": seed,
+    }
+    if workers <= 1:
+        _init_worker(state)
+        sharpes = np.array([_random_sharpe(i) for i in range(runs)])
+    else:
+        ctx = multiprocessing.get_context("fork")
+        with ProcessPoolExecutor(
+            workers, mp_context=ctx, initializer=_init_worker, initargs=(state,)
+        ) as pool:
+            sharpes = np.array(list(pool.map(_random_sharpe, range(runs), chunksize=8)))
     return RandomSignalResult(real_sharpe, sharpes, percentile_of(real_sharpe, sharpes))
 
 

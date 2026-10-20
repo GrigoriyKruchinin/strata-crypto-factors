@@ -136,3 +136,10 @@ def test_deflated_sharpe_penalises_many_trials() -> None:
     assert probabilistic_sharpe(r) > deflated_sharpe(r, 200, trials)
     assert expected_max_sharpe(1, 1.0) == 0.0
     assert expected_max_sharpe(1000, 1e-3) > expected_max_sharpe(10, 1e-3)
+
+
+def test_random_signal_parallel_matches_serial() -> None:
+    args = (_spec(), PANEL, T("2020-03-01", tz="UTC"), T("2020-08-31", tz="UTC"), 0.0)
+    serial = random_signal_test(*args, runs=6, workers=1)
+    parallel = random_signal_test(*args, runs=6, workers=3)
+    np.testing.assert_allclose(serial.random_sharpes, parallel.random_sharpes)
