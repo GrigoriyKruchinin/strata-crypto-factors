@@ -1,4 +1,4 @@
-# Strata — todo
+# Strata — Crypto Factor Research Toolkit — todo
 
 Legend: `[x]` done and verified · `[ ]` open (partial work noted inline).
 Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open once).
@@ -14,7 +14,6 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Git: `.gitignore`, `.env.example`, `origin`, first commit + push
 - [x] `README.md` header + `docs/assets/logo.svg`
 - [x] `docs/guides/stage-1-user-guide.md`
-- [x] Admin dashboard credentials: not needed (No-Go, no Stage 3)
 - [x] Wait for "Start Implementation"
 
 ## Stage 1 — MVP + research (no real money) · branch `stage-1-mvp`
@@ -23,17 +22,16 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] `pyproject.toml` (uv, Python 3.12), `uv.lock`, `Makefile` (lint, typecheck, test, check, backtest)
 - [x] ruff + mypy strict + pytest (+ pytest-asyncio, hypothesis) configured; empty package passes `make check`
 - [x] Package layout (`src/strata/...`): domain, data, universe, factors, portfolio, costs, backtest, research, paper, notify, infra
-- [x] Modular Pydantic Settings: `AppSettings`, `DatabaseSettings`, `RedisSettings`, `ExchangeSettings`, `DataSettings`, `FactorSettings`, `PortfolioSettings`, `CostSettings`, `RiskSettings`, `TelegramSettings`, `ResearchSettings`
-- [x] Core interfaces: `IMarketDataSource`, `IUniverseProvider`, `IFactor`, `IPortfolioConstructor`, `ICostModel`, `IOrderGateway`, `IRiskRule`, `BaseExchangeAdapter`
-- [x] DI container / factories wiring simulator, paper and (later) live gateways (`strata.infra.container`)
+- [x] Modular Pydantic Settings: `AppSettings`, `DatabaseSettings`, `ExchangeSettings`, `DataSettings`, `FactorSettings`, `PortfolioSettings`, `CostSettings`, `TelegramSettings`, `ResearchSettings`, `PaperSettings`
+- [x] Core interfaces: `IMarketDataSource`, `IUniverseProvider`, `IFactor`, `IPortfolioConstructor`, `ICostModel`, `IOrderGateway` (simulation), `BaseExchangeAdapter`
+- [x] DI container / factories wiring the backtest simulator and the paper simulator (`strata.infra.container`)
 
-### Storage and infra
+### Storage
 - [x] SQLAlchemy async models: instruments (listing/delisting dates), candles, funding rates, universe snapshots, factor values, target portfolios, actual portfolios, trades, equity curve, experiment log
-- [x] Alembic setup + initial migration
+- [x] Alembic setup + initial migration (applied automatically to the local SQLite database)
 - [x] DB ingest: candles/funding (incremental after each refresh), experiment log (`strata ingest-db`), universe + factor values per paper rebalance (separate migrations container)
-- [x] Redis + Celery app, beat schedule (daily refresh 00:15 UTC -> paper cycle -> notify; weekly rebalance inside cycle)
-- [x] `docker-compose.local.yml`: postgres, redis, migrations, celery-beat, worker, data-loader, backtester, paper-trader, telegram-worker; healthchecks + `depends_on: service_healthy`; per-role env subsets
-- [x] `docker compose -f docker-compose.local.yml config` passes; stack starts healthy
+- [x] Daily paper run as a CLI command (`strata paper-cycle`, schedulable with cron)
+- [x] Local stack was validated in Stage 1 and later replaced by a local SQLite + CLI setup
 
 ### Data
 - [x] Binance USDT-M adapter (public endpoints, httpx REST behind own interface, weight-based rate limiter)
@@ -70,7 +68,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
 - [x] Paper vs backtest reconciliation on the same dates
 - [x] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
-- [ ] Paper trading runs ≥ 28 days — not completed: stopped after 1 day when the holdout result led to No-Go (2026-10-20)
+- [ ] Paper trading runs ≥ 28 days — not completed: stopped after 1 day following the holdout evaluation (2026-10-20)
 
 ### Go / No-Go criteria (agreed 2026-10-19, fixed before holdout)
 - [x] **Mandatory "plus to deposit"** (added 2026-10-20, before holdout was opened): net return on deposit after all costs and funding on unseen data is positive; reported as average net % per month; 1.5%/month is the reference level, final decision discussed with the user. Without this criterion the verdict cannot be Go — evaluated 2026-10-20: **FAIL −1.15%/month**
@@ -87,44 +85,22 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] `docs/reports/stage-1-go-no-go.md` (metrics, equity vs BTC chart, best configs, variation count, validity checks, risks, recommendation, "Простыми словами" block)
 - [x] `/audit-risks` clean (no BLOCKER/HIGH; 1 MEDIUM + 3 LOW fixed, documented in the report)
 - [x] README updated (features, quick start, architecture, configuration, status badge)
-- [x] `docs/guides/stage-2-user-guide.md` (only if Go) — not applicable: No-Go
 - [x] `chore: complete stage 1`, tag `v0.1.0`, merge to `main`, push
 
-## Fork after Stage 1 — Go / Iterate / Research toolkit
+## Outcome of Stage 1 — research toolkit
 
-- [x] Discuss `docs/reports/stage-1-go-no-go.md` with the user (plain Russian, honest) — owner chose No-Go on 2026-10-20
-- [ ] Go → Stage 2 after explicit confirmation
-- [ ] Iterate → ≤ 2 iterations, goals and criteria recorded here, fresh unseen segment
-- [ ] No-Go (explicitly confirmed) → reposition as "Crypto Factor Research Toolkit" per `CLAUDE.md` protocol: README/CLAUDE.md/.claude/todo rewrite, remove execution code, **remove all Docker infrastructure** (compose, Dockerfile, Redis/Celery workers; local SQLite/Parquet storage, `uv run` + Makefile), CI for code quality only, verify clean install without Docker, tag `v1.0.0`
+- [x] Discuss `docs/reports/stage-1-go-no-go.md` with the owner (2026-10-20)
+- [x] Reposition as "Crypto Factor Research Toolkit": README, CLAUDE.md, `.claude/`, todo
+- [x] Remove live-execution plans and trading-only settings (no exchange keys, no risk-limit settings)
+- [x] Replace the container stack with local SQLite + CLI (`uv run strata ...`, `Makefile`)
+- [x] CI for code quality only (ruff, mypy, pytest)
+- [x] Clean install and tests verified on a fresh clone
+- [x] `CHANGELOG.md`, tag `v1.0.0`
 
-## Stage 2 — Production, real money (only on Go) · branch `stage-2-prod`
+## Polish & docs (optional)
 
-- [ ] Live `IOrderGateway` for Binance USDT-M: place/cancel, positions, account, idempotent `clientOrderId`, leverage and margin mode
-- [ ] Rebalance Executor: target vs actual diff, limit orders with slippage cap + timeout, controlled fill-up, partial fills/rejects/retries
-- [ ] Startup reconciliation with exchange state
-- [ ] Rate limits, WebSocket auto-reconnect
-- [ ] Risk Manager (`IRiskRule`s): gross leverage, per-coin weight, per-coin PnL share, daily loss, 25% drawdown stop, liquidation distance, delisting/abnormal funding exclusion, anomaly halt
-- [ ] Kill-switch: Telegram command + automatic
-- [ ] Execution vs cost-model reconciliation after each rebalance
-- [ ] Prod `docker-compose.yml` with healthchecks and per-role secrets
-- [ ] CI `.github/workflows/ci.yml`: ruff, mypy, pytest, compose config, image build; required for merge
-- [ ] Image publishing to GHCR (version + SHA tags)
-- [ ] CD `.github/workflows/deploy.yml`: SSH deploy, pull → Alembic migrations → up -d; `production` environment with required reviewer
-- [ ] Healthcheck verification + automatic rollback + manual rollback via `workflow_dispatch`
-- [ ] Telegram deploy notifications
-- [ ] First successful automatic deploy to VPS (≤ $10/month)
-- [ ] Telegram: rebalance report, warnings, daily/weekly/monthly digests
-- [ ] Start with minimum capital; scale only after user confirmation
-- [ ] `docs/guides/stage-3-user-guide.md`, `chore: complete stage 2`, tag `v0.2.0`
-
-## Stage 3 — Growth and analytics (only on Go) · branch `stage-3-dashboard`
-
-- [ ] FastAPI admin dashboard, owner-only auth (Basic/JWT)
-- [ ] Analytics API: top profit by day/week/month/all-time, top trades/rebalances, top coins (profit and loss), top factors and sleeves
-- [ ] Chart.js UI: cumulative PnL, equity vs BTC vs backtest, drawdown, turnover/costs, funding, leverage
-- [ ] Tables: current book, recent rebalances, errors
-- [ ] Factor attribution, backtest vs live decay tracking
-- [ ] System health metrics (worker uptime, data lag, API errors, rate-limit headroom)
-- [ ] Factor and exchange plugins; multiple portfolio sleeves with risk-based capital allocation
-- [ ] Backups, monitoring, profiling
-- [ ] `chore: complete stage 3`, tag `v0.3.0`
+- [ ] Usage examples: adding a new `IFactor`, running a custom grid, reading results
+- [ ] `strata report` command: markdown/SVG summary for any logged run
+- [ ] Hourly-bar support in the loader and panel
+- [ ] Re-run the full study after the audit fixes on fresh, unseen data and compare
+- [ ] Raise test coverage of `strata.data.loader` error paths and the CLI

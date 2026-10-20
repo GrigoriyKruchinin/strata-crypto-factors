@@ -6,17 +6,28 @@ import argparse
 import asyncio
 import logging
 from collections.abc import Callable, Sequence
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import httpx
+from alembic import command
+from alembic.config import Config
 
-from strata.config import DataSettings, ExchangeSettings, ResearchSettings
+from strata.config import (
+    DatabaseSettings,
+    DataSettings,
+    ExchangeSettings,
+    ResearchSettings,
+    TelegramSettings,
+)
 from strata.data.binance_rest import BinanceUsdmAdapter
 from strata.data.binance_vision import BinanceVisionClient
 from strata.data.loader import HistoryLoader
 from strata.data.store import ParquetStore
 from strata.infra import container
 from strata.infra.ingest import ingest_experiments, ingest_market
+from strata.notify.telegram import INotifier, NullNotifier, TelegramNotifier
+from strata.paper.daily import paper_cycle, refresh_market_data
 from strata.research.experiment_log import JsonlExperimentLog
 from strata.research.pipeline import TRAIN_END, TRAIN_START, ResearchPipeline
 
@@ -111,6 +122,26 @@ async def _ingest_db() -> int:
     return 0
 
 
+def _upgrade_db() -> None:
+    """Create/upgrade the local SQLite schema (idempotent)."""
+    url = DatabaseSettings().url
+    if url.startswith("sqlite") and ":///" in url:
+        Path(url.split(":///", 1)[1]).parent.mkdir(parents=True, exist_ok=True)
+    command.upgrade(Config("alembic.ini"), "head")
+
+
+async def _paper_cycle(day: date, refresh: bool) -> int:
+    telegram = TelegramSettings()
+    async with httpx.AsyncClient(timeout=20) as client:
+        notifier: INotifier = (
+            TelegramNotifier(client, telegram) if telegram.enabled else NullNotifier()
+        )
+        if refresh:
+            logger.info("refresh: %s", await refresh_market_data(notifier))
+        logger.info("paper cycle: %s", await paper_cycle(day, notifier))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="strata")
     parser.add_argument("--log-level", default="INFO")
@@ -123,7 +154,28 @@ def build_parser() -> argparse.ArgumentParser:
     bt = sub.add_parser("backtest", help="backtest one grid spec on the train period (logged)")
     bt.add_argument("--spec", default="all_six")
     sub.add_parser("ingest-db", help="copy candles, funding and experiments into the database")
+    sub.add_parser("db-upgrade", help="create or upgrade the local SQLite schema")
+    pc = sub.add_parser("paper-cycle", help="daily run: refresh data, paper cycle, Telegram report")
+    pc.add_argument("--date", type=date.fromisoformat, default=None, help="UTC run date")
+    pc.add_argument("--no-refresh", action="store_true", help="skip the market data refresh")
     return parser
+
+
+def _dispatch(args: argparse.Namespace) -> int:
+    command: str = args.command
+    if command == "download-history":
+        return asyncio.run(_download_history(args.symbols))
+    if command == "research":
+        return _research(args.step, args.random_runs)
+    if command == "backtest":
+        return _backtest(args.spec)
+    _upgrade_db()  # the remaining commands use the local database
+    if command == "ingest-db":
+        return asyncio.run(_ingest_db())
+    if command == "paper-cycle":
+        day = args.date or datetime.now(UTC).date()
+        return asyncio.run(_paper_cycle(day, refresh=not args.no_refresh))
+    return 0  # db-upgrade
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -133,15 +185,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     logging.getLogger("httpx").setLevel(logging.WARNING)
-    if args.command == "download-history":
-        return asyncio.run(_download_history(args.symbols))
-    if args.command == "research":
-        return _research(args.step, args.random_runs)
-    if args.command == "backtest":
-        return _backtest(args.spec)
-    if args.command == "ingest-db":
-        return asyncio.run(_ingest_db())
-    return 2
+    return _dispatch(args)
 
 
 if __name__ == "__main__":

@@ -17,10 +17,14 @@ def test_research_periods_must_not_overlap() -> None:
 
 
 def test_secrets_not_in_repr(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DB_PASSWORD", "super-secret-value")
-    s = DatabaseSettings(_env_file=None)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "super-secret-value")
+    s = TelegramSettings(_env_file=None)
     assert "super-secret-value" not in repr(s)
-    assert "super-secret-value" in s.async_url
+    assert s.bot_token.get_secret_value() == "super-secret-value"
+
+
+def test_database_defaults_to_local_sqlite() -> None:
+    assert DatabaseSettings(_env_file=None).url.startswith("sqlite+aiosqlite:///")
 
 
 def test_telegram_disabled_without_token() -> None:

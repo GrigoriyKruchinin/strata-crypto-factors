@@ -95,7 +95,7 @@ def paper_trader() -> tuple[PaperTrader, StrategySpec]:
     paper = PaperSettings()
     spec = paper_strategy(paper)
     st = store()
-    sessions = make_sessionmaker(make_engine(DatabaseSettings().async_url))
+    sessions = make_sessionmaker(make_engine(DatabaseSettings().url))
     trader = PaperTrader(
         account=paper.account,
         strategy_name=spec.name,
@@ -121,4 +121,4 @@ def signal_snapshot(
 
 
 def sessions() -> async_sessionmaker[AsyncSession]:
-    return make_sessionmaker(make_engine(DatabaseSettings().async_url))
+    return make_sessionmaker(make_engine(DatabaseSettings().url))

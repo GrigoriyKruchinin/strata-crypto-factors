@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 from logging.config import fileConfig
 
@@ -13,14 +14,15 @@ from strata.config import DatabaseSettings
 from strata.infra.db import Base, make_engine
 
 config = context.config
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+# Configure logging only for the alembic CLI; inside `strata` the app's logging is kept.
+if config.config_file_name is not None and not logging.getLogger().handlers:
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 
 
 def _url() -> str:
-    return os.environ.get("STRATA_DB_URL") or DatabaseSettings().async_url
+    return os.environ.get("STRATA_DB_URL") or DatabaseSettings().url
 
 
 def run_migrations_offline() -> None:

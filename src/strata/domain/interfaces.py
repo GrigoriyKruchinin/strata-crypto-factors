@@ -11,7 +11,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
-from enum import StrEnum
 
 import pandas as pd
 
@@ -132,34 +131,3 @@ class IOrderGateway(ABC):
 
     @abstractmethod
     async def submit(self, orders: Sequence[OrderRequest]) -> list[Fill]: ...
-
-
-class RiskAction(StrEnum):
-    ALLOW = "allow"
-    SCALE_DOWN = "scale_down"
-    HALT = "halt"
-
-
-@dataclass(frozen=True, slots=True)
-class RiskDecision:
-    action: RiskAction
-    rule: str
-    reason: str = ""
-    scale: Decimal = Decimal(1)
-
-
-@dataclass(frozen=True)
-class RiskState:
-    equity: Decimal
-    peak_equity: Decimal
-    day_start_equity: Decimal
-    target_weights: dict[Symbol, Decimal]
-    funding_rates: dict[Symbol, Decimal] = field(default_factory=dict)
-    blocked_symbols: frozenset[Symbol] = frozenset()
-
-
-class IRiskRule(ABC):
-    name: str
-
-    @abstractmethod
-    def evaluate(self, state: RiskState) -> RiskDecision: ...

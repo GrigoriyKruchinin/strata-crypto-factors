@@ -1,7 +1,7 @@
 [project]
 name = "strata"
-version = "0.1.0.dev0"
-description = "Systematic market-neutral factor portfolio for crypto perpetual futures"
+version = "1.0.0"
+description = "Crypto Factor Research Toolkit: cross-sectional factor research and simulation for crypto perpetual futures"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
@@ -9,16 +9,14 @@ dependencies = [
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
     "sqlalchemy[asyncio]>=2.0.36",
-    "asyncpg>=0.30",
     "alembic>=1.14",
-    "celery>=5.4",
-    "redis>=5.2",
     "httpx>=0.28",
     "pandas>=2.2",
     "numpy>=2.1",
     "scipy>=1.14",
     "pyarrow>=18.0",
     "defusedxml>=0.7.1",
+    "aiosqlite>=0.22.1",
 ]
 
 [project.scripts]
@@ -33,9 +31,7 @@ dev = [
     "hypothesis>=6.120",
     "pandas-stubs>=2.2",
     "scipy-stubs>=1.14",
-    "celery-types>=0.22",
     "respx>=0.21",
-    "aiosqlite>=0.22.1",
     "types-defusedxml>=0.7.0.20260504",
 ]
 
