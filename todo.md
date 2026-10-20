@@ -85,7 +85,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 
 ### Stage close
 - [x] `docs/reports/stage-1-go-no-go.md` (metrics, equity vs BTC chart, best configs, variation count, validity checks, risks, recommendation, "Простыми словами" block)
-- [ ] `/audit-risks` clean
+- [x] `/audit-risks` clean (no BLOCKER/HIGH; 1 MEDIUM + 3 LOW fixed, documented in the report)
 - [x] README updated (features, quick start, architecture, configuration, status badge)
 - [x] `docs/guides/stage-2-user-guide.md` (only if Go) — not applicable: No-Go
 - [ ] `chore: complete stage 1`, tag `v0.1.0`, merge to `main`, push

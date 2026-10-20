@@ -18,6 +18,7 @@ dependencies = [
     "numpy>=2.1",
     "scipy>=1.14",
     "pyarrow>=18.0",
+    "defusedxml>=0.7.1",
 ]
 
 [project.scripts]
@@ -35,6 +36,7 @@ dev = [
     "celery-types>=0.22",
     "respx>=0.21",
     "aiosqlite>=0.22.1",
+    "types-defusedxml>=0.7.0.20260504",
 ]
 
 [build-system]

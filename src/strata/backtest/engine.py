@@ -139,6 +139,7 @@ class Backtester:
             vol=vol * np.sqrt(ANNUALISATION),
             adv=panel.quote_volume.rolling(30, min_periods=1).mean(),
             tradeable=~np.isnan(open_),
+            traded=~np.isnan(close),
             held_ret=np.nan_to_num(held, nan=0.0),
             no_next=no_next,
             funding=np.nan_to_num(panel.funding.to_numpy(dtype=float), nan=0.0),
@@ -187,9 +188,12 @@ class Backtester:
             return np.zeros(n), 0.0
         sdate = m.dates[signal_idx]
         previous = pd.Series(state.w, index=m.symbols)[state.w != 0]
-        target_s = self._target(m, signal_idx, m.tradeable[h], previous)
+        # Eligibility uses only what is known at the signal close; a name with no market at the
+        # execution open simply cannot be filled (order rejected, no re-allocation).
+        target_s = self._target(m, signal_idx, m.traded[signal_idx], previous)
         targets[sdate] = target_s
         target = target_s.reindex(m.symbols, fill_value=0.0).to_numpy(dtype=float)
+        target = np.where(m.tradeable[h], target, state.w)
         trade = target - state.w
         cost = self.cost_model.trading_cost(
             pd.Series(trade, index=m.symbols), state.equity, m.adv.iloc[signal_idx]
@@ -260,6 +264,7 @@ class _Market:
     vol: pd.DataFrame
     adv: pd.DataFrame
     tradeable: np.ndarray
+    traded: np.ndarray
     held_ret: np.ndarray
     no_next: np.ndarray
     funding: np.ndarray

@@ -144,3 +144,21 @@ async def test_refresh_appends_rest_tail(tmp_path: Path) -> None:
     assert again.failed == {}
     live = store.read_table(Table.KLINES_1D, "LIVEUSDT")
     assert live is not None and len(live) == 33
+
+
+async def test_relisted_symbol_keeps_first_life(tmp_path: Path) -> None:
+    store = ParquetStore(tmp_path)
+    loader = HistoryLoader(
+        FakeVision(),
+        FakeRest(),
+        store,
+        history_start=date(2020, 1, 1),
+        now=lambda: datetime(2020, 2, 3, 12, tzinfo=UTC),
+    )
+    await loader.run()
+    meta = store.read_instruments()
+    # Exchange reports a later (re)listing date than the first traded bar.
+    meta.loc[meta["symbol"] == "LIVEUSDT", "onboard_time"] = pd.Timestamp("2020-01-20", tz="UTC")
+    store.write_instruments(meta)
+    panel = build_panel(store)
+    assert panel.onboard_date["LIVEUSDT"] == pd.Timestamp("2020-01-01", tz="UTC")

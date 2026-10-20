@@ -48,7 +48,11 @@ def build_panel(
             )
     if store.instruments_path.exists():
         meta = store.read_instruments().set_index("symbol")["onboard_time"].dropna()
-        onboard.update({str(k): pd.Timestamp(v) for k, v in meta.items() if k in onboard})
+        # Relisted contracts report their *latest* onboard date; the first traded bar wins so
+        # their earlier life stays in the point-in-time universe.
+        onboard.update(
+            {str(k): min(pd.Timestamp(v), onboard[str(k)]) for k, v in meta.items() if k in onboard}
+        )
     frames = {k: pd.DataFrame(v) for k, v in fields.items()}
     index = frames["close"].index.sort_values()
     columns = frames["close"].columns

@@ -11,7 +11,7 @@ from strata.backtest.engine import BacktestResult
 from strata.backtest.metrics import Metrics, compute_metrics
 from strata.domain.panel import MarketPanel
 from strata.research.experiment_log import ExperimentRecord, IExperimentLog
-from strata.research.holdout import HoldoutGuard
+from strata.research.holdout import HoldoutGuard, HoldoutViolationError
 from strata.research.spec import StrategySpec
 
 HOLDOUT = "holdout"
@@ -55,6 +55,8 @@ class ResearchRunner:
     ) -> RunOutput:
         if label != HOLDOUT:
             self.guard.check_research_period(end)
+        elif not self.guard.is_opened():
+            raise HoldoutViolationError("holdout runs require HoldoutGuard.open_once() first")
         # Signals need history before ``start``; the guard above bounds the end of data used.
         panel = self.panel.truncate(end + pd.Timedelta(days=1))
         result = spec.build_backtester(exclude_extra).run(panel, start, end)

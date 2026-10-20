@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import hashlib
 import re
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from enum import StrEnum
 
+import defusedxml.ElementTree as SafeET
 import httpx
 
 from strata.data.http import get_optional, get_with_retry
@@ -73,7 +73,7 @@ class BinanceVisionClient:
             if delimiter:
                 params["delimiter"] = "/"
             response = await get_with_retry(self._client, self._listing_url, params=params)
-            root = ET.fromstring(response.content)  # noqa: S314 - trusted endpoint
+            root = SafeET.fromstring(response.content)
             keys += [e.text or "" for e in root.findall("s3:Contents/s3:Key", _S3_NS)]
             prefixes += [e.text or "" for e in root.findall("s3:CommonPrefixes/s3:Prefix", _S3_NS)]
             truncated = (root.findtext("s3:IsTruncated", "false", _S3_NS) or "").lower() == "true"

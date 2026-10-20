@@ -114,7 +114,22 @@ evaluated in production. On synthetic data the paper engine reproduced the backt
   could look different, but the protocol does not allow re-selection on this data.
 - With 18 candidates and a deflated Sharpe of 0.22, the train result was already weak evidence.
 
-## 7. Recommendation
+## 7. Post-hoc audit (after the holdout)
+
+An independent code audit before closing the stage found no blocking issues and four smaller ones,
+all fixed in code afterwards. Published numbers above were produced **before** the fixes and were
+deliberately not re-run (the holdout is burned; re-running after viewing it would be tuning).
+
+| Severity | Issue | Direction of bias |
+|---|---|---|
+| Medium | 11 relisted contracts (e.g. ICP, CVC, CTK) used their *latest* onboard date, so their first life was excluded from the universe | Train results biased **upward**; holdout barely affected |
+| Low | Eligibility used "has a bar at the execution open" (one bar ahead) | Avoided entering next-day delistings; small upward bias |
+| Low | Holdout label could bypass the research-period guard (not used) | None in published runs |
+| Low | S3 listing parsed with stdlib XML parser | Security hardening only |
+
+None of these can turn the holdout result positive; the verdict is unchanged.
+
+## 8. Recommendation
 
 **No-Go.** No evidence of a durable, cost-robust edge on unseen data. The project continues as a
 research toolkit (data, backtesting, validation, experiment log); no live trading.

@@ -154,3 +154,9 @@ def test_equity_svg_renders_legend() -> None:
     svg = equity_svg(rets, "t & t")
     assert svg.startswith("<svg") and "t &amp; t" in svg
     assert "a (1.35x)" in svg and "b (0.74x)" in svg
+
+
+def test_holdout_label_requires_opened_holdout(tmp_path: Path) -> None:
+    runner = _runner(tmp_path)
+    with pytest.raises(HoldoutViolationError):
+        runner.run(_spec(), T("2022-01-01", tz="UTC"), T("2022-06-30", tz="UTC"), label="holdout")
