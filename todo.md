@@ -48,7 +48,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 
 ### Portfolio and costs
 - [x] Portfolio Constructor: top/bottom quantile, dollar-neutral, equal weight and inverse-vol weight, per-coin weight cap, portfolio vol targeting, turnover limit, gross leverage ≤ 2x
-- [ ] Compact-book mode for $1k–$5k capital (~8–10 per side) respecting `minNotional`, `stepSize` (weights side done; order sizing comes with Paper Trader)
+- [x] Compact-book mode for $1k–$5k capital (~8–10 per side) respecting `minNotional`, `stepSize`
 - [x] Cost Model (`ICostModel`): maker/taker fees, size-to-volume slippage (conservative), funding per position over actual holding time, rebalance turnover; costs ×2 switch
 - [x] Property-based tests for money math (Decimal rounding, tick/step, neutrality)
 
@@ -66,8 +66,8 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [ ] Freeze candidate set in the log → **one-time holdout evaluation**
 
 ### Paper trading and notifications
-- [ ] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
-- [ ] Paper vs backtest reconciliation on the same dates
+- [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
+- [x] Paper vs backtest reconciliation on the same dates
 - [ ] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
 - [ ] Paper trading runs ≥ 28 days
 

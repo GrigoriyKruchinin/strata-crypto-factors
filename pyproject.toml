@@ -34,6 +34,7 @@ dev = [
     "scipy-stubs>=1.14",
     "celery-types>=0.22",
     "respx>=0.21",
+    "aiosqlite>=0.22.1",
 ]
 
 [build-system]

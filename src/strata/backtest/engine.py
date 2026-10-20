@@ -144,6 +144,38 @@ class Backtester:
             funding=np.nan_to_num(panel.funding.to_numpy(dtype=float), nan=0.0),
         )
 
+    def _target(
+        self, m: _Market, signal_idx: int, tradeable: np.ndarray, previous: pd.Series
+    ) -> pd.Series:
+        """Target weights from information at the close of ``signal_idx`` only."""
+        cfg = self.config
+        row_scores = m.scores.iloc[signal_idx]
+        eligible = m.members.iloc[signal_idx] & row_scores.notna() & tradeable
+        ctx = PortfolioContext(
+            date=m.dates[signal_idx],
+            volatility=m.vol.iloc[signal_idx][eligible],
+            previous_weights=previous,
+            recent_returns=m.daily_rets.iloc[
+                max(0, signal_idx - cfg.cov_window + 1) : signal_idx + 1
+            ].loc[:, eligible],
+        )
+        return self.constructor.construct(row_scores[eligible], ctx)
+
+    def target_at(
+        self, panel: MarketPanel, signal_date: pd.Timestamp, previous: pd.Series | None = None
+    ) -> pd.Series:
+        """Live/paper entry point: the target the backtest would trade after ``signal_date``.
+
+        ``panel`` should end at ``signal_date``; symbols must have a close on that bar.
+        """
+        view = panel.truncate(signal_date)
+        m = self._prepare(view, None, None)
+        idx = len(view.dates) - 1
+        if view.dates[idx] != signal_date:
+            raise ValueError(f"panel has no bar for {signal_date}")
+        tradeable = view.close.iloc[idx].notna().to_numpy()
+        return self._target(m, idx, tradeable, previous if previous is not None else pd.Series())
+
     def _rebalance(
         self, m: _Market, h: int, state: _State, targets: dict[pd.Timestamp, pd.Series]
     ) -> tuple[np.ndarray, float]:
@@ -154,17 +186,8 @@ class Backtester:
         if signal_idx < 0 or not self._is_signal_date(m.dates[signal_idx]):
             return np.zeros(n), 0.0
         sdate = m.dates[signal_idx]
-        row_scores = m.scores.iloc[signal_idx]
-        eligible = m.members.iloc[signal_idx] & row_scores.notna() & m.tradeable[h]
-        ctx = PortfolioContext(
-            date=sdate,
-            volatility=m.vol.iloc[signal_idx][eligible],
-            previous_weights=pd.Series(state.w, index=m.symbols)[state.w != 0],
-            recent_returns=m.daily_rets.iloc[
-                max(0, signal_idx - cfg.cov_window + 1) : signal_idx + 1
-            ].loc[:, eligible],
-        )
-        target_s = self.constructor.construct(row_scores[eligible], ctx)
+        previous = pd.Series(state.w, index=m.symbols)[state.w != 0]
+        target_s = self._target(m, signal_idx, m.tradeable[h], previous)
         targets[sdate] = target_s
         target = target_s.reindex(m.symbols, fill_value=0.0).to_numpy(dtype=float)
         trade = target - state.w
