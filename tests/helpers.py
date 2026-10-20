@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import io
 import zipfile
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+from strata.data.store import ParquetStore, Table
 from strata.domain.panel import MarketPanel
 
 DAY_MS = 86_400_000
@@ -74,3 +76,37 @@ def synthetic_panel(
         funding=funding,
         onboard_date=pd.Series(onboard, dtype="datetime64[ns, UTC]"),
     )
+
+
+def write_store(panel: MarketPanel, root: Path) -> ParquetStore:
+    store = ParquetStore(root)
+    for sym in panel.symbols:
+        traded = panel.close[sym].notna()
+        idx = panel.dates[traded]
+        store.write_table(
+            Table.KLINES_1D,
+            sym,
+            pd.DataFrame(
+                {
+                    "open_time": idx,
+                    "open": panel.open.loc[idx, sym].to_numpy(),
+                    "high": panel.high.loc[idx, sym].to_numpy(),
+                    "low": panel.low.loc[idx, sym].to_numpy(),
+                    "close": panel.close.loc[idx, sym].to_numpy(),
+                    "volume": 1.0,
+                    "quote_volume": panel.quote_volume.loc[idx, sym].to_numpy(),
+                    "trades": 1,
+                }
+            ),
+        )
+        store.write_table(
+            Table.FUNDING,
+            sym,
+            pd.DataFrame(
+                {
+                    "funding_time": idx + pd.Timedelta(hours=8),
+                    "rate": panel.funding.loc[idx, sym].to_numpy(),
+                }
+            ),
+        )
+    return store

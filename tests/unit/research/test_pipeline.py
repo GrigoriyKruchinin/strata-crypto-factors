@@ -5,47 +5,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from strata.data.store import ParquetStore, Table
 from strata.domain.panel import MarketPanel
 from strata.research.grid import MOM_28, REV_7
 from strata.research.holdout import HoldoutViolationError
 from strata.research.pipeline import ResearchPipeline
 from strata.research.spec import StrategySpec
-from tests.helpers import synthetic_panel
-
-
-def _write_store(panel: MarketPanel, root: Path) -> ParquetStore:
-    store = ParquetStore(root)
-    for sym in panel.symbols:
-        traded = panel.close[sym].notna()
-        idx = panel.dates[traded]
-        store.write_table(
-            Table.KLINES_1D,
-            sym,
-            pd.DataFrame(
-                {
-                    "open_time": idx,
-                    "open": panel.open.loc[idx, sym].to_numpy(),
-                    "high": panel.high.loc[idx, sym].to_numpy(),
-                    "low": panel.low.loc[idx, sym].to_numpy(),
-                    "close": panel.close.loc[idx, sym].to_numpy(),
-                    "volume": 1.0,
-                    "quote_volume": panel.quote_volume.loc[idx, sym].to_numpy(),
-                    "trades": 1,
-                }
-            ),
-        )
-        store.write_table(
-            Table.FUNDING,
-            sym,
-            pd.DataFrame(
-                {
-                    "funding_time": idx + pd.Timedelta(hours=8),
-                    "rate": panel.funding.loc[idx, sym].to_numpy(),
-                }
-            ),
-        )
-    return store
+from tests.helpers import synthetic_panel, write_store
 
 
 def _panel() -> MarketPanel:
@@ -60,7 +25,7 @@ def _panel() -> MarketPanel:
 
 
 def test_pipeline_end_to_end(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _write_store(_panel(), tmp_path / "data")
+    write_store(_panel(), tmp_path / "data")
     common = {"top_n": 10, "min_age_days": 10, "min_avg_quote_volume": 0.0}
     grid = [
         StrategySpec(name="mom", factors=(MOM_28,), positions_per_side=3, **common),

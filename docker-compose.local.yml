@@ -70,13 +70,14 @@ services:
     command: ["celery", "-A", "strata.infra.celery_app", "worker", "-Q", "data", "-c", "1", "-n", "data@%h", "--loglevel", "INFO"]
     environment:
       CELERY_NODE: data
-      <<: *redis-env
+      <<: [*db-env, *redis-env]
       DATA_ROOT_DIR: /app/data
     volumes:
       - ./data:/app/data
     healthcheck: *worker-health
     depends_on:
       redis: { condition: service_healthy }
+      migrations: { condition: service_completed_successfully }
 
   # Virtual account: same signals and cost model as the backtest, state in Postgres.
   paper-trader:

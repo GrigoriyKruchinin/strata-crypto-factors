@@ -7,11 +7,13 @@ import logging
 from datetime import UTC, date, datetime, timedelta
 
 import httpx
+import pandas as pd
 
 from strata.config import ExchangeSettings, PaperSettings, TelegramSettings
 from strata.data.panel_builder import build_panel
 from strata.infra import container
 from strata.infra.celery_app import app
+from strata.infra.ingest import ingest_market, record_signal
 from strata.notify.messages import (
     daily_message,
     data_refresh_failed,
@@ -62,7 +64,8 @@ def refresh_data(self: object, run_paper: bool = True) -> dict[str, int]:
             httpx.AsyncClient(timeout=timeout) as rh,
         ):
             result = await container.history_loader(vh, rh).refresh()
-        return {"symbols": result.symbols, "failed": len(result.failed)}
+        rows = await ingest_market(container.sessions(), container.store())
+        return {"symbols": result.symbols, "failed": len(result.failed), "db_rows": rows}
 
     try:
         summary = asyncio.run(_run())
@@ -91,8 +94,18 @@ def paper_cycle(today_iso: str | None = None) -> dict[str, object]:
         if not report.processed:
             return {"status": "noop"}
         _notify(daily_message(report, settings.initial_equity))
-        if report.rebalanced:
+        if report.rebalanced and report.signal_date is not None:
             _notify(rebalance_message(report, spec.name))
+            adv, scores = container.signal_snapshot(
+                spec, build_panel(container.store()), pd.Timestamp(report.signal_date, tz="UTC")
+            )
+            await record_signal(
+                container.sessions(),
+                strategy=spec.name,
+                signal_date=report.signal_date,
+                universe_adv=adv,
+                factor_scores=scores,
+            )
         curve = await trader.repository.equity_curve(settings.account)
         if today.weekday() == 0 and len(curve) >= 8:
             _notify(weekly_message(curve, settings.initial_equity))

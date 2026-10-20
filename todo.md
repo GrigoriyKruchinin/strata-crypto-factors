@@ -29,7 +29,8 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 
 ### Storage and infra
 - [x] SQLAlchemy async models: instruments (listing/delisting dates), candles, funding rates, universe snapshots, factor values, target portfolios, actual portfolios, trades, equity curve, experiment log
-- [x] Alembic setup + initial migration (separate migrations container)
+- [x] Alembic setup + initial migration
+- [x] DB ingest: candles/funding (incremental after each refresh), experiment log (`strata ingest-db`), universe + factor values per paper rebalance (separate migrations container)
 - [x] Redis + Celery app, beat schedule (daily refresh 00:15 UTC -> paper cycle -> notify; weekly rebalance inside cycle)
 - [x] `docker-compose.local.yml`: postgres, redis, migrations, celery-beat, worker, data-loader, backtester, paper-trader, telegram-worker; healthchecks + `depends_on: service_healthy`; per-role env subsets
 - [x] `docker compose -f docker-compose.local.yml config` passes; stack starts healthy

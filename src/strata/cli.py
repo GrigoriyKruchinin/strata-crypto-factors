@@ -15,6 +15,9 @@ from strata.data.binance_rest import BinanceUsdmAdapter
 from strata.data.binance_vision import BinanceVisionClient
 from strata.data.loader import HistoryLoader
 from strata.data.store import ParquetStore
+from strata.infra import container
+from strata.infra.ingest import ingest_experiments, ingest_market
+from strata.research.experiment_log import JsonlExperimentLog
 from strata.research.pipeline import TRAIN_END, TRAIN_START, ResearchPipeline
 
 logger = logging.getLogger("strata")
@@ -92,6 +95,16 @@ def _backtest(spec_name: str) -> int:
     return 0
 
 
+async def _ingest_db() -> int:
+    sessions = container.sessions()
+    market = await ingest_market(sessions, container.store())
+    experiments = await ingest_experiments(
+        sessions, JsonlExperimentLog(RESEARCH_DIR / "experiment-log.jsonl")
+    )
+    logger.info("ingested market rows=%d experiments=%d", market, experiments)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="strata")
     parser.add_argument("--log-level", default="INFO")
@@ -103,6 +116,7 @@ def build_parser() -> argparse.ArgumentParser:
     rs.add_argument("--random-runs", type=int, default=None)
     bt = sub.add_parser("backtest", help="backtest one grid spec on the train period (logged)")
     bt.add_argument("--spec", default="all_six")
+    sub.add_parser("ingest-db", help="copy candles, funding and experiments into the database")
     return parser
 
 
@@ -119,6 +133,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _research(args.step, args.random_runs)
     if args.command == "backtest":
         return _backtest(args.spec)
+    if args.command == "ingest-db":
+        return asyncio.run(_ingest_db())
     return 2
 
 

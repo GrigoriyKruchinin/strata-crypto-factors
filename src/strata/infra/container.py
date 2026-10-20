@@ -11,6 +11,7 @@ from decimal import Decimal
 
 import httpx
 import pandas as pd
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from strata.config import DatabaseSettings, DataSettings, ExchangeSettings, PaperSettings
 from strata.data.binance_rest import BinanceUsdmAdapter
@@ -19,6 +20,7 @@ from strata.data.loader import HistoryLoader
 from strata.data.panel_builder import build_panel
 from strata.data.store import ParquetStore
 from strata.domain.models import Instrument, InstrumentStatus
+from strata.domain.panel import MarketPanel
 from strata.infra.db import make_engine, make_sessionmaker
 from strata.paper.repository import SqlPaperRepository
 from strata.paper.trader import PaperTrader
@@ -104,3 +106,19 @@ def paper_trader() -> tuple[PaperTrader, StrategySpec]:
         initial_equity=paper.initial_equity,
     )
     return trader, spec
+
+
+def signal_snapshot(
+    spec: StrategySpec, panel: MarketPanel, signal_date: pd.Timestamp
+) -> tuple[pd.Series, dict[str, pd.Series]]:
+    """Universe (with trailing ADV) and raw factor scores behind a rebalance at ``signal_date``."""
+    view = panel.truncate(signal_date)
+    universe = spec.build_universe()
+    members = universe.membership(view).iloc[-1]
+    adv = universe.average_volume(view).iloc[-1][members]
+    scores = {f.name: f.compute(view).iloc[-1][members] for f in (x.build() for x in spec.factors)}
+    return adv, scores
+
+
+def sessions() -> async_sessionmaker[AsyncSession]:
+    return make_sessionmaker(make_engine(DatabaseSettings().async_url))
