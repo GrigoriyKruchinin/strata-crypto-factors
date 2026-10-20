@@ -90,12 +90,12 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 ## Outcome of Stage 1 — research toolkit
 
 - [x] Discuss `docs/reports/stage-1-go-no-go.md` with the owner (2026-10-20)
-- [ ] Reposition as "Crypto Factor Research Toolkit": README, CLAUDE.md, `.claude/`, todo
+- [x] Reposition as "Crypto Factor Research Toolkit": README, CLAUDE.md, `.claude/`, todo
 - [x] Remove live-execution plans and trading-only settings (no exchange keys, no risk-limit settings)
 - [x] Replace the container stack with local SQLite + CLI (`uv run strata ...`, `Makefile`)
-- [ ] CI for code quality only (ruff, mypy, pytest)
-- [ ] Clean install and tests verified on a fresh clone
-- [ ] `CHANGELOG.md`, tag `v1.0.0`
+- [x] CI for code quality only (ruff, mypy, pytest)
+- [x] Clean install and tests verified on a fresh clone
+- [x] `CHANGELOG.md`, tag `v1.0.0`
 
 ## Polish & docs (optional)
 
