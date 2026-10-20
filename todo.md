@@ -15,13 +15,13 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] `README.md` header + `docs/assets/logo.svg`
 - [x] `docs/guides/stage-1-user-guide.md`
 - [ ] Admin dashboard credentials: user sets them in `.env` before Stage 3 (never in chat)
-- [ ] Wait for "Start Implementation"
+- [x] Wait for "Start Implementation"
 
 ## Stage 1 — MVP + research (no real money) · branch `stage-1-mvp`
 
 ### Foundation
-- [ ] `pyproject.toml` (uv, Python 3.12), `uv.lock`, `Makefile` (lint, typecheck, test, check, backtest)
-- [ ] ruff + mypy strict + pytest (+ pytest-asyncio, hypothesis) configured; empty package passes `make check`
+- [x] `pyproject.toml` (uv, Python 3.12), `uv.lock`, `Makefile` (lint, typecheck, test, check, backtest)
+- [x] ruff + mypy strict + pytest (+ pytest-asyncio, hypothesis) configured; empty package passes `make check`
 - [ ] Package layout (`src/strata/...`): domain, data, universe, factors, portfolio, costs, backtest, research, paper, notify, infra
 - [ ] Modular Pydantic Settings: `AppSettings`, `DatabaseSettings`, `RedisSettings`, `ExchangeSettings`, `DataSettings`, `FactorSettings`, `PortfolioSettings`, `CostSettings`, `RiskSettings`, `TelegramSettings`, `ResearchSettings`
 - [ ] Core interfaces: `IMarketDataSource`, `IUniverseProvider`, `IFactor`, `IPortfolioConstructor`, `ICostModel`, `IOrderGateway`, `IRiskRule`, `BaseExchangeAdapter`
