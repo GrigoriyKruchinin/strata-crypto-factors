@@ -14,85 +14,88 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Git: `.gitignore`, `.env.example`, `origin`, first commit + push
 - [x] `README.md` header + `docs/assets/logo.svg`
 - [x] `docs/guides/stage-1-user-guide.md`
-- [ ] Admin dashboard credentials: user sets them in `.env` before Stage 3 (never in chat)
-- [ ] Wait for "Start Implementation"
+- [x] Admin dashboard credentials: not needed (No-Go, no Stage 3)
+- [x] Wait for "Start Implementation"
 
 ## Stage 1 — MVP + research (no real money) · branch `stage-1-mvp`
 
 ### Foundation
-- [ ] `pyproject.toml` (uv, Python 3.12), `uv.lock`, `Makefile` (lint, typecheck, test, check, backtest)
-- [ ] ruff + mypy strict + pytest (+ pytest-asyncio, hypothesis) configured; empty package passes `make check`
-- [ ] Package layout (`src/strata/...`): domain, data, universe, factors, portfolio, costs, backtest, research, paper, notify, infra
-- [ ] Modular Pydantic Settings: `AppSettings`, `DatabaseSettings`, `RedisSettings`, `ExchangeSettings`, `DataSettings`, `FactorSettings`, `PortfolioSettings`, `CostSettings`, `RiskSettings`, `TelegramSettings`, `ResearchSettings`
-- [ ] Core interfaces: `IMarketDataSource`, `IUniverseProvider`, `IFactor`, `IPortfolioConstructor`, `ICostModel`, `IOrderGateway`, `IRiskRule`, `BaseExchangeAdapter`
-- [ ] DI container / factories wiring simulator, paper and (later) live gateways
+- [x] `pyproject.toml` (uv, Python 3.12), `uv.lock`, `Makefile` (lint, typecheck, test, check, backtest)
+- [x] ruff + mypy strict + pytest (+ pytest-asyncio, hypothesis) configured; empty package passes `make check`
+- [x] Package layout (`src/strata/...`): domain, data, universe, factors, portfolio, costs, backtest, research, paper, notify, infra
+- [x] Modular Pydantic Settings: `AppSettings`, `DatabaseSettings`, `RedisSettings`, `ExchangeSettings`, `DataSettings`, `FactorSettings`, `PortfolioSettings`, `CostSettings`, `RiskSettings`, `TelegramSettings`, `ResearchSettings`
+- [x] Core interfaces: `IMarketDataSource`, `IUniverseProvider`, `IFactor`, `IPortfolioConstructor`, `ICostModel`, `IOrderGateway`, `IRiskRule`, `BaseExchangeAdapter`
+- [x] DI container / factories wiring simulator, paper and (later) live gateways (`strata.infra.container`)
 
 ### Storage and infra
-- [ ] SQLAlchemy async models: instruments (listing/delisting dates), candles, funding rates, universe snapshots, factor values, target portfolios, actual portfolios, trades, equity curve, experiment log
-- [ ] Alembic setup + initial migration (separate migrations container)
-- [ ] Redis + Celery app, beat schedule (daily data refresh, weekly rebalance)
-- [ ] `docker-compose.local.yml`: postgres, redis, migrations, celery-beat, worker, data-loader, backtester, paper-trader, telegram-worker; healthchecks + `depends_on: service_healthy`; per-role env subsets
-- [ ] `docker compose -f docker-compose.local.yml config` passes; stack starts healthy
+- [x] SQLAlchemy async models: instruments (listing/delisting dates), candles, funding rates, universe snapshots, factor values, target portfolios, actual portfolios, trades, equity curve, experiment log
+- [x] Alembic setup + initial migration
+- [x] DB ingest: candles/funding (incremental after each refresh), experiment log (`strata ingest-db`), universe + factor values per paper rebalance (separate migrations container)
+- [x] Redis + Celery app, beat schedule (daily refresh 00:15 UTC -> paper cycle -> notify; weekly rebalance inside cycle)
+- [x] `docker-compose.local.yml`: postgres, redis, migrations, celery-beat, worker, data-loader, backtester, paper-trader, telegram-worker; healthchecks + `depends_on: service_healthy`; per-role env subsets
+- [x] `docker compose -f docker-compose.local.yml config` passes; stack starts healthy
 
 ### Data
-- [ ] Binance USDT-M adapter (public endpoints, ccxt-backed REST behind own interface, rate-limit aware)
-- [ ] Bulk history loader from `data.binance.vision`: 1d (and 1h if needed) klines, funding history, all perpetuals including delisted; checkpoints, resume, gap detection
-- [ ] Instrument metadata with listing/delisting dates; data version stamp
-- [ ] Data quality report (gaps, zero volume, outliers) saved to file
+- [x] Binance USDT-M adapter (public endpoints, httpx REST behind own interface, weight-based rate limiter)
+- [x] Bulk history loader from `data.binance.vision`: 1d (and 1h if needed) klines, funding history, all perpetuals including delisted; checkpoints, resume, gap detection
+- [x] Instrument metadata with listing/delisting dates; data version stamp
+- [x] Data quality report (gaps, zero volume, outliers) saved to file
 
 ### Universe and factors
-- [ ] Point-in-time Universe Builder: top-N by trailing 30d quote volume, min age, min liquidity; delisted kept historically
-- [ ] Factors (`IFactor`): momentum (several windows, skip window), short-term reversal, volatility, liquidity/size (volume proxy), funding carry, beta to BTC
-- [ ] Cross-sectional normalization (rank / z-score, winsorization) and factor combination
-- [ ] No-look-ahead tests for universe and every factor (perturb future data → signal unchanged)
+- [x] Point-in-time Universe Builder: top-N by trailing 30d quote volume, min age, min liquidity; delisted kept historically
+- [x] Factors (`IFactor`): momentum (several windows, skip window), short-term reversal, volatility, liquidity/size (volume proxy), funding carry, beta to BTC
+- [x] Cross-sectional normalization (rank / z-score, winsorization) and factor combination
+- [x] No-look-ahead tests for universe and every factor (perturb future data → signal unchanged)
 
 ### Portfolio and costs
-- [ ] Portfolio Constructor: top/bottom quantile, dollar-neutral, equal weight and inverse-vol weight, per-coin weight cap, portfolio vol targeting, turnover limit, gross leverage ≤ 2x
-- [ ] Compact-book mode for $1k–$5k capital (~8–10 per side) respecting `minNotional`, `stepSize`
-- [ ] Cost Model (`ICostModel`): maker/taker fees, size-to-volume slippage (conservative), funding per position over actual holding time, rebalance turnover; costs ×2 switch
-- [ ] Property-based tests for money math (Decimal rounding, tick/step, neutrality)
+- [x] Portfolio Constructor: top/bottom quantile, dollar-neutral, equal weight and inverse-vol weight, per-coin weight cap, portfolio vol targeting, turnover limit, gross leverage ≤ 2x
+- [x] Compact-book mode for $1k–$5k capital (~8–10 per side) respecting `minNotional`, `stepSize`
+- [x] Cost Model (`ICostModel`): maker/taker fees, size-to-volume slippage (conservative), funding per position over actual holding time, rebalance turnover; costs ×2 switch
+- [x] Property-based tests for money math (Decimal rounding, tick/step, neutrality)
 
 ### Backtest and validation
-- [ ] Backtester (signal at close `t`, fill at `t+1`), daily and weekly rebalance
-- [ ] Metrics: net/annual return, vol, Sharpe, max drawdown, turnover, cost and funding share, yearly and rolling returns, per-coin and per-factor contribution
-- [ ] Experiment Log (params, git SHA, data version, period, metrics) + variation counter
-- [ ] Walk-forward evaluation
-- [ ] Sub-period stability (bull / bear / sideways)
-- [ ] Costs ×2 sensitivity
-- [ ] Random-signal benchmark (≥ 1000 shuffled-rank runs, fixed seed)
-- [ ] Top-coin exclusion test
-- [ ] Benchmarks: BTC buy-and-hold, equal-weight long-only
-- [ ] Multiple-testing correction (e.g. deflated Sharpe) in conclusions
-- [ ] Freeze candidate set in the log → **one-time holdout evaluation**
+- [x] Backtester (signal at close `t`, fill at `t+1`), daily and weekly rebalance
+- [x] Metrics: net/annual return, vol, Sharpe, max drawdown, turnover, cost and funding share, yearly and rolling returns, per-coin contribution (per-factor attribution: in research runner)
+- [x] Experiment Log (params, git SHA, data version, period, metrics) + variation counter
+- [x] Walk-forward evaluation
+- [x] Sub-period stability (bull / bear / sideways)
+- [x] Costs ×2 sensitivity (run for every grid spec on train; for primary on holdout)
+- [x] Random-signal benchmark (≥ 1000 shuffled-rank runs, fixed seed)
+- [x] Top-coin exclusion test
+- [x] Benchmarks: BTC buy-and-hold, equal-weight long-only
+- [x] Multiple-testing correction (e.g. deflated Sharpe) in conclusions
+- [x] Freeze candidate set in the log → **one-time holdout evaluation** (frozen and opened 2026-10-20; holdout is now burned)
 
 ### Paper trading and notifications
-- [ ] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
-- [ ] Paper vs backtest reconciliation on the same dates
-- [ ] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
-- [ ] Paper trading runs ≥ 28 days
+- [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
+- [x] Paper vs backtest reconciliation on the same dates
+- [x] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
+- [ ] Paper trading runs ≥ 28 days — not completed: stopped after 1 day when the holdout result led to No-Go (2026-10-20)
 
 ### Go / No-Go criteria (agreed 2026-10-19, fixed before holdout)
-- [ ] Holdout net annual return ≥ 20% with max drawdown ≤ 25% (gross leverage ≤ 2x)
-- [ ] Holdout Sharpe ≥ 1.0 after costs and funding
-- [ ] Costs ×2: Sharpe ≥ 0.5
-- [ ] Real result > 95th percentile of random signals
-- [ ] No single coin > 15% of total profit
-- [ ] Positive in ≥ 60% of rolling 6-month windows
-- [ ] Paper trading ≥ 28 days, deviation from backtest on the same dates ≤ 25%
+- [x] **Mandatory "plus to deposit"** (added 2026-10-20, before holdout was opened): net return on deposit after all costs and funding on unseen data is positive; reported as average net % per month; 1.5%/month is the reference level, final decision discussed with the user. Without this criterion the verdict cannot be Go — evaluated 2026-10-20: **FAIL −1.15%/month**
+- [x] Holdout net annual return ≥ 20% with max drawdown ≤ 25% (gross leverage ≤ 2x) — evaluated 2026-10-20: **FAIL −12.9%, max DD 63.2%**
+- [x] Holdout Sharpe ≥ 1.0 after costs and funding — evaluated 2026-10-20: **FAIL −0.12**
+- [x] Costs ×2: Sharpe ≥ 0.5 — evaluated 2026-10-20: **FAIL −0.21**
+- [x] Real result > 95th percentile of random signals — evaluated 2026-10-20: **FAIL 60.7th**
+- [x] No single coin > 15% of total profit — evaluated 2026-10-20: **PASS 8.7%**
+- [x] Positive in ≥ 60% of rolling 6-month windows — evaluated 2026-10-20: **FAIL 44.4%**
+- [x] Paper trading ≥ 28 days, deviation from backtest on the same dates ≤ 25% — evaluated 2026-10-20: **not evaluated (stopped after No-Go)**
+
 
 ### Stage close
-- [ ] `docs/reports/stage-1-go-no-go.md` (metrics, equity vs BTC chart, best configs, variation count, validity checks, risks, recommendation, "Простыми словами" block)
-- [ ] `/audit-risks` clean
-- [ ] README updated (features, quick start, architecture, configuration, status badge)
-- [ ] `docs/guides/stage-2-user-guide.md` (only if Go)
-- [ ] `chore: complete stage 1`, tag `v0.1.0`, merge to `main`, push
+- [x] `docs/reports/stage-1-go-no-go.md` (metrics, equity vs BTC chart, best configs, variation count, validity checks, risks, recommendation, "Простыми словами" block)
+- [x] `/audit-risks` clean (no BLOCKER/HIGH; 1 MEDIUM + 3 LOW fixed, documented in the report)
+- [x] README updated (features, quick start, architecture, configuration, status badge)
+- [x] `docs/guides/stage-2-user-guide.md` (only if Go) — not applicable: No-Go
+- [x] `chore: complete stage 1`, tag `v0.1.0`, merge to `main`, push
 
 ## Fork after Stage 1 — Go / Iterate / Research toolkit
 
-- [ ] Discuss `docs/reports/stage-1-go-no-go.md` with the user (plain Russian, honest)
+- [x] Discuss `docs/reports/stage-1-go-no-go.md` with the user (plain Russian, honest) — owner chose No-Go on 2026-10-20
 - [ ] Go → Stage 2 after explicit confirmation
 - [ ] Iterate → ≤ 2 iterations, goals and criteria recorded here, fresh unseen segment
-- [ ] No-Go (explicitly confirmed) → reposition as "Crypto Factor Research Toolkit" per `CLAUDE.md` protocol, tag `v1.0.0`
+- [ ] No-Go (explicitly confirmed) → reposition as "Crypto Factor Research Toolkit" per `CLAUDE.md` protocol: README/CLAUDE.md/.claude/todo rewrite, remove execution code, **remove all Docker infrastructure** (compose, Dockerfile, Redis/Celery workers; local SQLite/Parquet storage, `uv run` + Makefile), CI for code quality only, verify clean install without Docker, tag `v1.0.0`
 
 ## Stage 2 — Production, real money (only on Go) · branch `stage-2-prod`
 

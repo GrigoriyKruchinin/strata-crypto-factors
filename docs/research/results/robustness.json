@@ -1,0 +1,206 @@
+{
+  "3c21a2f1b6ce": {
+    "name": "funding_carry_14",
+    "sharpe": 1.1172351433880074,
+    "random_signal": {
+      "percentile": 0.999,
+      "p95_random_sharpe": 0.41546002906088836,
+      "median_random_sharpe": -0.3898819954360573
+    },
+    "exclusion": [
+      {
+        "excluded": [
+          "AXSUSDT"
+        ],
+        "sharpe": 0.8914484917467704,
+        "annual_return": 0.20308327263683035
+      },
+      {
+        "excluded": [
+          "AXSUSDT",
+          "SOLUSDT"
+        ],
+        "sharpe": 0.9892699736661053,
+        "annual_return": 0.23167983709587991
+      },
+      {
+        "excluded": [
+          "AXSUSDT",
+          "SOLUSDT",
+          "BNBUSDT"
+        ],
+        "sharpe": 0.8684303340310088,
+        "annual_return": 0.19836172825674536
+      }
+    ],
+    "regimes": {
+      "bear": {
+        "days": 182,
+        "total_return": 0.5062735287644908,
+        "sharpe": 3.1179539989498197,
+        "max_drawdown": 0.09301017717626026
+      },
+      "bull": {
+        "days": 639,
+        "total_return": 0.8412145470077468,
+        "sharpe": 1.526270421498237,
+        "max_drawdown": 0.19768198738195186
+      },
+      "sideways": {
+        "days": 549,
+        "total_return": -0.11028642739461791,
+        "sharpe": -0.24628597606452088,
+        "max_drawdown": 0.2858770442273896
+      }
+    },
+    "benchmarks": {
+      "btc_buy_hold": {
+        "total_return": 2.632504075561171,
+        "sharpe": 0.8574939171142951,
+        "max_drawdown": 0.7899309585938165
+      },
+      "equal_weight_long": {
+        "total_return": 2.9094521234350172,
+        "sharpe": 0.8650359010161269,
+        "max_drawdown": 0.8643511401676742
+      }
+    },
+    "corr_btc": 0.007544934918654412
+  },
+  "520c60a3129f": {
+    "name": "mom_carry_invvol",
+    "sharpe": 1.0223418239999345,
+    "random_signal": {
+      "percentile": 0.998,
+      "p95_random_sharpe": 0.35859207554899514,
+      "median_random_sharpe": -0.4536663198741485
+    },
+    "exclusion": [
+      {
+        "excluded": [
+          "SOLUSDT"
+        ],
+        "sharpe": 0.8769856508953304,
+        "annual_return": 0.2014006836751483
+      },
+      {
+        "excluded": [
+          "SOLUSDT",
+          "TRXUSDT"
+        ],
+        "sharpe": 0.9310960325175034,
+        "annual_return": 0.2169603229547168
+      },
+      {
+        "excluded": [
+          "SOLUSDT",
+          "TRXUSDT",
+          "GALAUSDT"
+        ],
+        "sharpe": 0.8803586781321591,
+        "annual_return": 0.20106288793265858
+      }
+    ],
+    "regimes": {
+      "bear": {
+        "days": 182,
+        "total_return": 0.14904900124397846,
+        "sharpe": 1.2289327317465117,
+        "max_drawdown": 0.09611047486093427
+      },
+      "bull": {
+        "days": 639,
+        "total_return": 0.6584705938686344,
+        "sharpe": 1.171185799868335,
+        "max_drawdown": 0.23333609586321225
+      },
+      "sideways": {
+        "days": 549,
+        "total_return": 0.208874275576856,
+        "sharpe": 0.7281872474397625,
+        "max_drawdown": 0.2788591187798106
+      }
+    },
+    "benchmarks": {
+      "btc_buy_hold": {
+        "total_return": 2.632504075561171,
+        "sharpe": 0.8574939171142951,
+        "max_drawdown": 0.7899309585938165
+      },
+      "equal_weight_long": {
+        "total_return": 2.9094521234350172,
+        "sharpe": 0.8650359010161269,
+        "max_drawdown": 0.8643511401676742
+      }
+    },
+    "corr_btc": -0.05113350329898498
+  },
+  "cb19d59b45fc": {
+    "name": "mom_carry",
+    "sharpe": 0.9789946117579725,
+    "random_signal": {
+      "percentile": 0.995,
+      "p95_random_sharpe": 0.41546002906088836,
+      "median_random_sharpe": -0.3898819954360573
+    },
+    "exclusion": [
+      {
+        "excluded": [
+          "SOLUSDT"
+        ],
+        "sharpe": 0.8446454952505278,
+        "annual_return": 0.20991313718656723
+      },
+      {
+        "excluded": [
+          "SOLUSDT",
+          "TRBUSDT"
+        ],
+        "sharpe": 0.6776412313324075,
+        "annual_return": 0.1562786338073956
+      },
+      {
+        "excluded": [
+          "SOLUSDT",
+          "TRBUSDT",
+          "GALAUSDT"
+        ],
+        "sharpe": 0.7321568720902623,
+        "annual_return": 0.17243298178823108
+      }
+    ],
+    "regimes": {
+      "bear": {
+        "days": 182,
+        "total_return": 0.16219570566121888,
+        "sharpe": 1.2086432456420355,
+        "max_drawdown": 0.10988197148554102
+      },
+      "bull": {
+        "days": 639,
+        "total_return": 0.5945025897405649,
+        "sharpe": 1.0380462081991908,
+        "max_drawdown": 0.252754836969462
+      },
+      "sideways": {
+        "days": 549,
+        "total_return": 0.2722417610045502,
+        "sharpe": 0.8153112348986259,
+        "max_drawdown": 0.3030992886352565
+      }
+    },
+    "benchmarks": {
+      "btc_buy_hold": {
+        "total_return": 2.632504075561171,
+        "sharpe": 0.8574939171142951,
+        "max_drawdown": 0.7899309585938165
+      },
+      "equal_weight_long": {
+        "total_return": 2.9094521234350172,
+        "sharpe": 0.8650359010161269,
+        "max_drawdown": 0.8643511401676742
+      }
+    },
+    "corr_btc": -0.029202137816269208
+  }
+}
