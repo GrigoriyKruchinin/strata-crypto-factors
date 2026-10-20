@@ -41,10 +41,10 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Data quality report (gaps, zero volume, outliers) saved to file
 
 ### Universe and factors
-- [ ] Point-in-time Universe Builder: top-N by trailing 30d quote volume, min age, min liquidity; delisted kept historically
-- [ ] Factors (`IFactor`): momentum (several windows, skip window), short-term reversal, volatility, liquidity/size (volume proxy), funding carry, beta to BTC
-- [ ] Cross-sectional normalization (rank / z-score, winsorization) and factor combination
-- [ ] No-look-ahead tests for universe and every factor (perturb future data → signal unchanged)
+- [x] Point-in-time Universe Builder: top-N by trailing 30d quote volume, min age, min liquidity; delisted kept historically
+- [x] Factors (`IFactor`): momentum (several windows, skip window), short-term reversal, volatility, liquidity/size (volume proxy), funding carry, beta to BTC
+- [x] Cross-sectional normalization (rank / z-score, winsorization) and factor combination
+- [x] No-look-ahead tests for universe and every factor (perturb future data → signal unchanged)
 
 ### Portfolio and costs
 - [ ] Portfolio Constructor: top/bottom quantile, dollar-neutral, equal weight and inverse-vol weight, per-coin weight cap, portfolio vol targeting, turnover limit, gross leverage ≤ 2x
