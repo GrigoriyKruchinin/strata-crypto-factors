@@ -42,24 +42,11 @@ class AppSettings(_Base):
 
 
 class DatabaseSettings(_Base):
+    """Local SQLite database (paper account state, candles/funding copy, experiments)."""
+
     model_config = SettingsConfigDict(env_prefix="DB_", env_file=_ENV_FILE, extra="ignore")
 
-    host: str = "localhost"
-    port: int = 5432
-    name: str = "strata"
-    user: str = "strata"
-    password: SecretStr = SecretStr("")
-
-    @property
-    def async_url(self) -> str:
-        pwd = self.password.get_secret_value()
-        return f"postgresql+asyncpg://{self.user}:{pwd}@{self.host}:{self.port}/{self.name}"
-
-
-class RedisSettings(_Base):
-    model_config = SettingsConfigDict(env_prefix="REDIS_", env_file=_ENV_FILE, extra="ignore")
-
-    url: str = "redis://localhost:6379/0"
+    url: str = "sqlite+aiosqlite:///data/strata.db"
 
 
 class ExchangeSettings(_Base):
@@ -73,15 +60,6 @@ class ExchangeSettings(_Base):
     vision_base_url: str = "https://data.binance.vision"
     request_timeout_s: float = 30.0
     max_requests_per_minute: int = 1200
-
-
-class ExchangeCredentials(_Base):
-    """Kept separate from ``ExchangeSettings`` so non-trading containers never load keys."""
-
-    model_config = SettingsConfigDict(env_prefix="EXCHANGE_", env_file=_ENV_FILE, extra="ignore")
-
-    api_key: SecretStr = SecretStr("")
-    api_secret: SecretStr = SecretStr("")
 
 
 class DataSettings(_Base):
@@ -156,17 +134,6 @@ class CostSettings(_Base):
     base_slippage_bps: Decimal = Decimal(5)
     impact_coefficient: Decimal = Decimal("0.1")
     cost_multiplier: Decimal = Decimal(1)
-
-
-class RiskSettings(_Base):
-    model_config = SettingsConfigDict(env_prefix="RISK_", env_file=_ENV_FILE, extra="ignore")
-
-    max_gross_leverage: Decimal = Decimal("2.0")
-    max_drawdown: Decimal = Decimal("0.25")
-    max_coin_weight: Decimal = Decimal("0.15")
-    max_coin_pnl_share: Decimal = Decimal("0.15")
-    daily_loss_limit: Decimal = Decimal("0.05")
-    max_abs_funding_rate: Decimal = Decimal("0.003")
 
 
 class TelegramSettings(_Base):
