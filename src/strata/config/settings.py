@@ -179,3 +179,15 @@ class TelegramSettings(_Base):
     @property
     def enabled(self) -> bool:
         return bool(self.bot_token.get_secret_value() and self.chat_id)
+
+
+class PaperSettings(_Base):
+    """Paper trading account. The strategy comes from the frozen research candidates."""
+
+    model_config = SettingsConfigDict(env_prefix="PAPER_", env_file=_ENV_FILE, extra="ignore")
+
+    account: str = "paper"
+    frozen_candidates_path: Path = Path("docs/research/frozen-candidates.json")
+    initial_equity: Decimal = Decimal(3000)
+    reconcile_tolerance: float = 0.25
+    min_days: int = 28

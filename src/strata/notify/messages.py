@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from decimal import Decimal
 from html import escape
 
+from strata.paper.repository import EquityPoint
 from strata.paper.trader import CycleReport, Reconciliation
 
 LINE = "━━━━━━━━━━━━━━━━━━"
@@ -91,3 +92,43 @@ def reconciliation_message(rec: Reconciliation, tolerance: float) -> str:
 
 def warning_message(title: str, details: str) -> str:
     return f"⚠️ <b>{escape(title)}</b>\n{LINE}\n{escape(details)}"
+
+
+def weekly_message(curve: list[EquityPoint], initial: Decimal) -> str:
+    """Summary of the last 7 bars of the virtual account."""
+    week = curve[-8:]
+    start, end = week[0], week[-1]
+    week_ret = float(end.equity / start.equity - 1) if start.equity else 0.0
+    total_ret = float(end.equity / initial - 1) if initial else 0.0
+    peak = max(p.equity for p in curve)
+    drawdown = float(end.equity / peak - 1) if peak else 0.0
+    funding = sum((p.funding for p in week[1:]), Decimal(0))
+    costs = sum((p.costs for p in week[1:]), Decimal(0))
+    return "\n".join(
+        [
+            f"🗓 <b>Итоги недели</b> · {start.bar_date:%d.%m}–{end.bar_date:%d.%m.%Y}",
+            LINE,
+            f"{'📈' if week_ret >= 0 else '📉'} За неделю: <b>{_pct(week_ret)}</b>",
+            f"💼 Капитал: <b>{_usd(end.equity).lstrip('+')}</b> · с начала {_pct(total_ret)}",
+            f"📉 Просадка от пика: {_pct(drawdown)}",
+            f"💰 Фандинг за неделю: {_usd(funding)} · издержки: {_usd(-costs)}",
+            f"⏱ Дней paper-trading: {len(curve)}",
+            "",
+            DISCLAIMER,
+        ]
+    )
+
+
+def data_refresh_failed(error: str) -> str:
+    return warning_message("Не удалось обновить данные", error)
+
+
+def data_refresh_partial(failed: int) -> str:
+    return warning_message(
+        "Обновление данных: есть ошибки",
+        f"Монет с ошибкой загрузки: {failed}. Остальные обновлены.",
+    )
+
+
+def paper_stale(details: str) -> str:
+    return warning_message("Paper-trading пропущен: данные устарели", details)
