@@ -77,10 +77,12 @@ class IFactor(ABC):
 
 @dataclass(frozen=True)
 class PortfolioContext:
+    """Information known at ``date`` that portfolio construction may use."""
+
     date: pd.Timestamp
-    volatility: pd.Series  # annualised per-symbol vol estimate known at ``date``
+    volatility: pd.Series  # annualised per-symbol vol estimate
     previous_weights: pd.Series = field(default_factory=lambda: pd.Series(dtype=float))
-    portfolio_vol_estimate: float | None = None
+    recent_returns: pd.DataFrame | None = None  # trailing daily returns, rows <= date
 
 
 class IPortfolioConstructor(ABC):

@@ -47,10 +47,10 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] No-look-ahead tests for universe and every factor (perturb future data → signal unchanged)
 
 ### Portfolio and costs
-- [ ] Portfolio Constructor: top/bottom quantile, dollar-neutral, equal weight and inverse-vol weight, per-coin weight cap, portfolio vol targeting, turnover limit, gross leverage ≤ 2x
-- [ ] Compact-book mode for $1k–$5k capital (~8–10 per side) respecting `minNotional`, `stepSize`
-- [ ] Cost Model (`ICostModel`): maker/taker fees, size-to-volume slippage (conservative), funding per position over actual holding time, rebalance turnover; costs ×2 switch
-- [ ] Property-based tests for money math (Decimal rounding, tick/step, neutrality)
+- [x] Portfolio Constructor: top/bottom quantile, dollar-neutral, equal weight and inverse-vol weight, per-coin weight cap, portfolio vol targeting, turnover limit, gross leverage ≤ 2x
+- [ ] Compact-book mode for $1k–$5k capital (~8–10 per side) respecting `minNotional`, `stepSize` (weights side done; order sizing comes with Paper Trader)
+- [x] Cost Model (`ICostModel`): maker/taker fees, size-to-volume slippage (conservative), funding per position over actual holding time, rebalance turnover; costs ×2 switch
+- [x] Property-based tests for money math (Decimal rounding, tick/step, neutrality)
 
 ### Backtest and validation
 - [ ] Backtester (signal at close `t`, fill at `t+1`), daily and weekly rebalance
