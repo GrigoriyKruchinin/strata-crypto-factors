@@ -55,10 +55,14 @@ class SquareRootImpactCostModel(ICostModel):
         adv = adv_quote.reindex(traded.index)
         # Unknown or zero ADV: charge the maximum slippage rather than nothing.
         participation = (notional / adv.where(adv > 0)).fillna(np.inf)
-        impact = participation.pow(0.5) * float(self.impact_coefficient)
+        # inf * 0 (unknown ADV with a zero impact coefficient) is NaN: charge the maximum.
+        impact = (participation.pow(0.5) * float(self.impact_coefficient)).fillna(
+            float(self.max_slippage)
+        )
         slip = (impact + float(self.base_slippage)).clip(upper=float(self.max_slippage))
         rate = (slip + float(self.taker_fee)) * float(self.cost_multiplier)
-        return traded * rate
+        cost: pd.Series = (traded * rate).where(traded > 0, 0.0)
+        return cost
 
     def funding_pnl(self, weights: pd.Series, funding_rates: pd.Series) -> pd.Series:
         rates = funding_rates.reindex(weights.index).fillna(0.0)

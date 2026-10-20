@@ -53,8 +53,8 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Property-based tests for money math (Decimal rounding, tick/step, neutrality)
 
 ### Backtest and validation
-- [ ] Backtester (signal at close `t`, fill at `t+1`), daily and weekly rebalance
-- [ ] Metrics: net/annual return, vol, Sharpe, max drawdown, turnover, cost and funding share, yearly and rolling returns, per-coin and per-factor contribution
+- [x] Backtester (signal at close `t`, fill at `t+1`), daily and weekly rebalance
+- [x] Metrics: net/annual return, vol, Sharpe, max drawdown, turnover, cost and funding share, yearly and rolling returns, per-coin contribution (per-factor attribution: in research runner)
 - [ ] Experiment Log (params, git SHA, data version, period, metrics) + variation counter
 - [ ] Walk-forward evaluation
 - [ ] Sub-period stability (bull / bear / sideways)
