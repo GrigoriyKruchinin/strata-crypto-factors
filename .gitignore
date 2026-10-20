@@ -228,8 +228,8 @@ __marimo__/
 secrets/
 
 # Local data, historical dumps, database volumes
-data/
-!data/.gitkeep
+/data/
+!/data/.gitkeep
 *.parquet
 *.feather
 *.zip
@@ -240,8 +240,8 @@ pgdata/
 redis-data/
 
 # Research outputs (reports in docs/reports are committed; raw run artifacts are not)
-artifacts/
-runs/
+/artifacts/
+/runs/
 
 # Claude Code local settings
 .claude/settings.local.json

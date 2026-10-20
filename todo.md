@@ -35,10 +35,10 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [ ] `docker compose -f docker-compose.local.yml config` passes; stack starts healthy
 
 ### Data
-- [ ] Binance USDT-M adapter (public endpoints, ccxt-backed REST behind own interface, rate-limit aware)
-- [ ] Bulk history loader from `data.binance.vision`: 1d (and 1h if needed) klines, funding history, all perpetuals including delisted; checkpoints, resume, gap detection
-- [ ] Instrument metadata with listing/delisting dates; data version stamp
-- [ ] Data quality report (gaps, zero volume, outliers) saved to file
+- [x] Binance USDT-M adapter (public endpoints, httpx REST behind own interface, weight-based rate limiter)
+- [x] Bulk history loader from `data.binance.vision`: 1d (and 1h if needed) klines, funding history, all perpetuals including delisted; checkpoints, resume, gap detection
+- [x] Instrument metadata with listing/delisting dates; data version stamp
+- [x] Data quality report (gaps, zero volume, outliers) saved to file
 
 ### Universe and factors
 - [ ] Point-in-time Universe Builder: top-N by trailing 30d quote volume, min age, min liquidity; delisted kept historically
