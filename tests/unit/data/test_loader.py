@@ -109,6 +109,14 @@ async def test_loader_end_to_end(tmp_path: Path) -> None:
     assert vision.downloads == downloads
     assert again.downloaded_files == 0 and again.cached_files == 3
 
+    # Flat zero-volume bars after delisting are not tradeable bars.
+    dead = store.read_table(Table.KLINES_1D, "DEADUSDT")
+    assert dead is not None
+    dead.loc[dead.index[-3:], "quote_volume"] = 0.0
+    store.write_table(Table.KLINES_1D, "DEADUSDT", dead)
+    panel = build_panel(store)
+    assert panel.close["DEADUSDT"].last_valid_index() == pd.Timestamp("2020-01-07", tz="UTC")
+    store.write_table(Table.KLINES_1D, "DEADUSDT", dead.assign(quote_volume=20.0))
     panel = build_panel(store)
     assert panel.close["DEADUSDT"].last_valid_index() == pd.Timestamp("2020-01-10", tz="UTC")
     # Settlements at 08:00 and next midnight both belong to the 2020-01-01 bar.

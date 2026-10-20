@@ -30,6 +30,11 @@ def build_panel(
         klines = store.read_table(Table.KLINES_1D, symbol)
         if klines is None or klines.empty:
             continue
+        # The archive keeps emitting flat zero-volume bars after a delisting (sometimes for
+        # years); a bar nobody traded is not a tradeable bar.
+        klines = klines.loc[klines["quote_volume"] > 0]
+        if klines.empty:
+            continue
         indexed = klines.set_index(pd.DatetimeIndex(klines["open_time"]).tz_convert("UTC"))
         for col in ("open", "high", "low", "close", "quote_volume"):
             fields[col][symbol] = indexed[col].astype("float64")

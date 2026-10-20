@@ -197,8 +197,11 @@ class HistoryLoader:
             klines = self._store.read_table(Table.KLINES_1D, symbol)
             if klines is None or klines.empty:
                 continue
-            first_bar = klines["open_time"].min().to_pydatetime()
-            last_bar = klines["open_time"].max().to_pydatetime()
+            traded = klines.loc[klines["quote_volume"] > 0, "open_time"]
+            if traded.empty:
+                continue
+            first_bar = traded.min().to_pydatetime()
+            last_bar = traded.max().to_pydatetime()
             raw = info.get(symbol)
             if raw is not None:
                 inst = parse_instrument(raw)
