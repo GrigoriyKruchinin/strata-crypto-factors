@@ -1,4 +1,4 @@
-.PHONY: install lint format typecheck test check backtest download-history compose-config
+.PHONY: install lint format typecheck test check backtest research download-history compose-config
 
 UV ?= uv
 COMPOSE_LOCAL = docker compose -f docker-compose.local.yml
@@ -30,3 +30,6 @@ download-history:
 
 backtest:
 	$(UV) run strata backtest $(ARGS)
+
+research:
+	$(UV) run strata research $(STEP) $(ARGS)

@@ -6,14 +6,16 @@ import argparse
 import asyncio
 import logging
 from collections.abc import Sequence
+from pathlib import Path
 
 import httpx
 
-from strata.config import DataSettings, ExchangeSettings
+from strata.config import DataSettings, ExchangeSettings, ResearchSettings
 from strata.data.binance_rest import BinanceUsdmAdapter
 from strata.data.binance_vision import BinanceVisionClient
 from strata.data.loader import HistoryLoader
 from strata.data.store import ParquetStore
+from strata.research.pipeline import TRAIN_END, TRAIN_START, ResearchPipeline
 
 logger = logging.getLogger("strata")
 
@@ -50,12 +52,56 @@ async def _download_history(symbols: Sequence[str] | None) -> int:
     return 1 if result.failed else 0
 
 
+RESEARCH_DIR = Path("docs/research")
+
+
+def _pipeline(random_runs: int | None = None) -> ResearchPipeline:
+    data = DataSettings()
+    research = ResearchSettings()
+    return ResearchPipeline(
+        data.root_dir,
+        RESEARCH_DIR,
+        research.artifacts_dir,
+        random_runs=random_runs or research.random_signal_runs,
+        seed=research.seed,
+    )
+
+
+def _research(step: str, random_runs: int | None) -> int:
+    pipeline = _pipeline(random_runs)
+    steps = {
+        "train": pipeline.train,
+        "robustness": pipeline.robustness,
+        "freeze": pipeline.freeze,
+        "holdout": pipeline.holdout,
+    }
+    path = steps[step]()
+    logger.info("research %s done: %s", step, path)
+    return 0
+
+
+def _backtest(spec_name: str) -> int:
+    pipeline = _pipeline()
+    spec = next((s for s in pipeline.grid if s.name == spec_name), None)
+    if spec is None:
+        logger.error("unknown spec %r; choose from %s", spec_name, [s.name for s in pipeline.grid])
+        return 2
+    out = pipeline.runner().run(spec, TRAIN_START, TRAIN_END, label="train")
+    logger.info("%s train metrics: %s", spec.name, out.metrics.as_dict())
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="strata")
     parser.add_argument("--log-level", default="INFO")
     sub = parser.add_subparsers(dest="command", required=True)
     dl = sub.add_parser("download-history", help="download/refresh klines and funding history")
     dl.add_argument("--symbols", nargs="*", default=None, help="limit to these symbols")
+    rs = sub.add_parser("research", help="run a step of the pre-registered research protocol")
+    rs.add_argument("step", choices=["train", "robustness", "freeze", "holdout"])
+    rs.add_argument("--random-runs", type=int, default=None)
+    bt = sub.add_parser("backtest", help="backtest one grid spec on the train period (logged)")
+    bt.add_argument("--spec", default="all_six")
     return parser
 
 
@@ -68,6 +114,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     if args.command == "download-history":
         return asyncio.run(_download_history(args.symbols))
+    if args.command == "research":
+        return _research(args.step, args.random_runs)
+    if args.command == "backtest":
+        return _backtest(args.spec)
     return 2
 
 
