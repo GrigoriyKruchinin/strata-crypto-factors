@@ -62,13 +62,14 @@ class FakeRest(BinanceUsdmAdapter):
     async def fetch_kline_frame(
         self, symbol: str, interval: str, start: datetime, end: datetime
     ) -> pd.DataFrame:
-        assert start == datetime(2020, 2, 1, tzinfo=UTC)
+        assert start >= datetime(2020, 2, 1, tzinfo=UTC)
         assert end == datetime(2020, 2, 3, tzinfo=UTC)
         rows = [
             [FEB_2020 + i * DAY_MS, "3", "3", "3", "3", "1", 0, "30", 1, "0", "0", "0"]
             for i in range(2)
         ]
-        return parse_kline_rows(rows)
+        frame = parse_kline_rows(rows)
+        return frame.loc[frame["open_time"] >= start].reset_index(drop=True)
 
     async def fetch_funding_frame(
         self, symbol: str, start: datetime, end: datetime
@@ -122,3 +123,24 @@ async def test_loader_end_to_end(tmp_path: Path) -> None:
     # Settlements at 08:00 and next midnight both belong to the 2020-01-01 bar.
     assert panel.funding.loc["2020-01-01", "LIVEUSDT"] == 0.0001 + 0.0002
     assert pd.isna(panel.funding.loc["2020-01-20", "DEADUSDT"])
+
+
+async def test_refresh_appends_rest_tail(tmp_path: Path) -> None:
+    store = ParquetStore(tmp_path)
+    loader = HistoryLoader(
+        FakeVision(),
+        FakeRest(),
+        store,
+        history_start=date(2020, 1, 1),
+        now=lambda: datetime(2020, 2, 3, 12, tzinfo=UTC),
+    )
+    await loader.run(only=["DEADUSDT"])
+    assert store.symbols(Table.KLINES_1D) == ["DEADUSDT"]
+    result = await loader.refresh()  # LIVEUSDT is new -> full archive + tail
+    assert result.failed == {}
+    live = store.read_table(Table.KLINES_1D, "LIVEUSDT")
+    assert live is not None and len(live) == 33
+    again = await loader.refresh()  # known symbol -> tail only, no duplicates
+    assert again.failed == {}
+    live = store.read_table(Table.KLINES_1D, "LIVEUSDT")
+    assert live is not None and len(live) == 33

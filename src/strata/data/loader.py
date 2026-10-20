@@ -87,6 +87,68 @@ class HistoryLoader:
         }
         await asyncio.gather(*(self._load_symbol(s, s in trading, result) for s in symbols))
         result.symbols = len(symbols) - len(result.failed)
+        self._finish(symbols, exchange_raw, result)
+        return result
+
+    async def refresh(self) -> LoadResult:
+        """Daily update: REST tail for trading contracts, full archive load for new listings.
+
+        Much cheaper than ``run`` (no archive listing for ~700 symbols); delisted contracts
+        keep their stored history.
+        """
+        result = LoadResult()
+        exchange_raw = await self._exchange_info()
+        if not exchange_raw:
+            raise RuntimeError("exchangeInfo unavailable: cannot refresh live data")
+        trading = sorted(
+            str(s["symbol"])
+            for s in exchange_raw
+            if is_crypto_perpetual(s)
+            and s.get("status") == InstrumentStatus.TRADING.value
+            and is_candidate_symbol(str(s["symbol"]), self._quote)
+        )
+        known = set(self._store.symbols(Table.KLINES_1D))
+        await asyncio.gather(
+            *(
+                self._refresh_symbol(s, result)
+                if s in known
+                else self._load_symbol(s, True, result)
+                for s in trading
+            )
+        )
+        symbols = sorted(known | set(trading))
+        result.symbols = len(trading) - len(result.failed)
+        self._finish(symbols, exchange_raw, result)
+        return result
+
+    async def _refresh_symbol(self, symbol: str, result: LoadResult) -> None:
+        try:
+            klines = self._store.read_table(Table.KLINES_1D, symbol)
+            funding = self._store.read_table(Table.FUNDING, symbol)
+            klines, funding = await self._rest_tail(
+                symbol,
+                klines if klines is not None else empty_klines(),
+                funding if funding is not None else empty_funding(),
+            )
+            self._store.write_table(
+                Table.KLINES_1D,
+                symbol,
+                klines.sort_values("open_time").drop_duplicates("open_time").reset_index(drop=True),
+            )
+            self._store.write_table(
+                Table.FUNDING,
+                symbol,
+                funding.sort_values("funding_time")
+                .drop_duplicates("funding_time")
+                .reset_index(drop=True),
+            )
+        except Exception as exc:
+            logger.exception("%s: refresh failed", symbol)
+            result.failed[symbol] = f"{type(exc).__name__}: {exc}"
+
+    def _finish(
+        self, symbols: list[str], exchange_raw: list[dict[str, Any]], result: LoadResult
+    ) -> None:
         self._store.write_instruments(self._instrument_table(symbols, exchange_raw))
         self._store.write_manifest(
             {
@@ -97,7 +159,6 @@ class HistoryLoader:
                 "failed": result.failed,
             }
         )
-        return result
 
     # ------------------------------------------------------------------ internals
     async def _exchange_info(self) -> list[dict[str, Any]]:
