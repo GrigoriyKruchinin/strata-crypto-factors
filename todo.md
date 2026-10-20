@@ -59,18 +59,18 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Experiment Log (params, git SHA, data version, period, metrics) + variation counter
 - [x] Walk-forward evaluation
 - [x] Sub-period stability (bull / bear / sideways)
-- [ ] Costs ×2 sensitivity (cost_multiplier in spec; run in research batch)
+- [x] Costs ×2 sensitivity (run for every grid spec on train; for primary on holdout)
 - [x] Random-signal benchmark (≥ 1000 shuffled-rank runs, fixed seed)
 - [x] Top-coin exclusion test
 - [x] Benchmarks: BTC buy-and-hold, equal-weight long-only
 - [x] Multiple-testing correction (e.g. deflated Sharpe) in conclusions
-- [ ] Freeze candidate set in the log → **one-time holdout evaluation**
+- [ ] Freeze candidate set in the log → **one-time holdout evaluation** (frozen 2026-10-20; holdout not yet opened)
 
 ### Paper trading and notifications
 - [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB
 - [x] Paper vs backtest reconciliation on the same dates
 - [x] Telegram notifier (HTML formatting): new target portfolio, daily/weekly virtual PnL digest, warnings
-- [ ] Paper trading runs ≥ 28 days
+- [ ] Paper trading runs ≥ 28 days (account opened 2026-10-20 with $3000, strategy funding_carry_14 @0.83x; first rebalance after Sun 2026-10-25 close; 28 days after it ≈ 2026-11-23)
 
 ### Go / No-Go criteria (agreed 2026-10-19, fixed before holdout)
 - [ ] **Mandatory "plus to deposit"** (added 2026-10-20, before holdout was opened): net return on deposit after all costs and funding on unseen data is positive; reported as average net % per month; 1.5%/month is the reference level, final decision discussed with the user. Without this criterion the verdict cannot be Go
