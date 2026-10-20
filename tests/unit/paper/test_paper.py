@@ -132,11 +132,7 @@ async def test_sql_repository_roundtrip(tmp_path: Path) -> None:
         float(
             account.cash
             + sum(
-                (
-                    p.quantity
-                    * D(repr(float(PANEL.close.at[pd.Timestamp("2021-04-19", tz="UTC"), s])))
-                    for s, p in positions.items()
-                ),
+                (p.quantity * D(repr(LAST_CLOSE[s])) for s, p in positions.items()),
                 D(0),
             )
         ),
