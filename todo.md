@@ -55,14 +55,14 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 ### Backtest and validation
 - [x] Backtester (signal at close `t`, fill at `t+1`), daily and weekly rebalance
 - [x] Metrics: net/annual return, vol, Sharpe, max drawdown, turnover, cost and funding share, yearly and rolling returns, per-coin contribution (per-factor attribution: in research runner)
-- [ ] Experiment Log (params, git SHA, data version, period, metrics) + variation counter
-- [ ] Walk-forward evaluation
-- [ ] Sub-period stability (bull / bear / sideways)
-- [ ] Costs ×2 sensitivity
-- [ ] Random-signal benchmark (≥ 1000 shuffled-rank runs, fixed seed)
-- [ ] Top-coin exclusion test
-- [ ] Benchmarks: BTC buy-and-hold, equal-weight long-only
-- [ ] Multiple-testing correction (e.g. deflated Sharpe) in conclusions
+- [x] Experiment Log (params, git SHA, data version, period, metrics) + variation counter
+- [x] Walk-forward evaluation
+- [x] Sub-period stability (bull / bear / sideways)
+- [ ] Costs ×2 sensitivity (cost_multiplier in spec; run in research batch)
+- [x] Random-signal benchmark (≥ 1000 shuffled-rank runs, fixed seed)
+- [x] Top-coin exclusion test
+- [x] Benchmarks: BTC buy-and-hold, equal-weight long-only
+- [x] Multiple-testing correction (e.g. deflated Sharpe) in conclusions
 - [ ] Freeze candidate set in the log → **one-time holdout evaluation**
 
 ### Paper trading and notifications
