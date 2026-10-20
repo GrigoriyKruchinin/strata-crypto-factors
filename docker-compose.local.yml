@@ -67,6 +67,8 @@ services:
   # Downloads / refreshes market data (public endpoints only).
   data-loader:
     <<: *app
+    # Run as the owner of the bind-mounted folders (./data, ./docs/research).
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     command: ["celery", "-A", "strata.infra.celery_app", "worker", "-Q", "data", "-c", "1", "-n", "data@%h", "--loglevel", "INFO"]
     environment:
       CELERY_NODE: data
@@ -82,6 +84,8 @@ services:
   # Virtual account: same signals and cost model as the backtest, state in Postgres.
   paper-trader:
     <<: *app
+    # Run as the owner of the bind-mounted folders (./data, ./docs/research).
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     command: ["celery", "-A", "strata.infra.celery_app", "worker", "-Q", "paper", "-c", "1", "-n", "paper@%h", "--loglevel", "INFO"]
     environment:
       CELERY_NODE: paper
@@ -131,6 +135,8 @@ services:
   # One-shot research runs: `docker compose -f docker-compose.local.yml run --rm backtester research train`
   backtester:
     <<: *app
+    # Run as the owner of the bind-mounted folders (./data, ./docs/research).
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     restart: "no"
     profiles: ["tools"]
     entrypoint: ["strata"]
