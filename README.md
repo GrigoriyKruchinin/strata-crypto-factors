@@ -14,7 +14,7 @@ dollar-neutral long/short books net of fees, slippage, funding and turnover. Res
 [![mypy](https://img.shields.io/badge/mypy-strict-2A6DB2)](https://mypy-lang.org/)
 [![ruff](https://img.shields.io/badge/lint-ruff-D7FF64?logo=ruff&logoColor=black)](https://docs.astral.sh/ruff/)
 [![docker compose](https://img.shields.io/badge/docker-compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![status](https://img.shields.io/badge/status-V1%20research%20%26%20paper%20trading-F59E0B)](todo.md)
+[![status](https://img.shields.io/badge/status-V1%20research%20complete-6B7280)](todo.md)
 
 </div>
 
