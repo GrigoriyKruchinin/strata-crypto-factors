@@ -64,7 +64,7 @@ Train period: 2020-01-01 – 2023-12-31 · Holdout: 2024-01-01 – present (open
 - [x] Top-coin exclusion test
 - [x] Benchmarks: BTC buy-and-hold, equal-weight long-only
 - [x] Multiple-testing correction (e.g. deflated Sharpe) in conclusions
-- [ ] Freeze candidate set in the log → **one-time holdout evaluation** (frozen 2026-10-20; holdout not yet opened)
+- [x] Freeze candidate set in the log → **one-time holdout evaluation** (frozen and opened 2026-10-20; holdout is now burned)
 
 ### Paper trading and notifications
 - [x] Paper Trader: live public data, virtual orders via simulator `IOrderGateway`, same cost model, persisted to DB

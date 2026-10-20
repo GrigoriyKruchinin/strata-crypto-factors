@@ -1,0 +1,179 @@
+{
+  "period": [
+    "2024-01-01",
+    "2026-10-18"
+  ],
+  "spec_id": "85403c0f909a",
+  "base_spec_id": "3c21a2f1b6ce",
+  "name": "funding_carry_14@0.83x",
+  "leverage": 0.8284455932155531,
+  "metrics": {
+    "days": 1022.0,
+    "total_return": -0.3211656551153256,
+    "monthly_return": -0.011470712189570742,
+    "annual_return": -0.12920556423558283,
+    "annual_vol": 0.4236364121795503,
+    "sharpe": -0.11683064271361071,
+    "max_drawdown": 0.6320882101901821,
+    "annual_turnover": 36.187782671117986,
+    "annual_cost": 0.039468630768625966,
+    "annual_funding": 0.408545116817193,
+    "cost_share_of_gross": 0.007863209651890794,
+    "hit_rate": 0.5117416829745597,
+    "max_coin_profit_share": 0.08679684758307742,
+    "positive_6m_windows": 0.44351961950059454
+  },
+  "cost2_metrics": {
+    "days": 1022.0,
+    "total_return": -0.3921324302450221,
+    "monthly_return": -0.014716213487561358,
+    "annual_return": -0.16287768439793338,
+    "annual_vol": 0.42396066271132216,
+    "sharpe": -0.20936260836431622,
+    "max_drawdown": 0.6518581135526258,
+    "annual_turnover": 36.19979639990172,
+    "annual_cost": 0.07878284129435889,
+    "annual_funding": 0.4087757140379758,
+    "cost_share_of_gross": 0.0156854508867084,
+    "hit_rate": 0.5078277886497065,
+    "max_coin_profit_share": 0.08871623951857881,
+    "positive_6m_windows": 0.40190249702734837
+  },
+  "random_signal": {
+    "percentile": 0.607,
+    "p95_random_sharpe": 0.6771818725011076,
+    "median_random_sharpe": -0.24737301469799194
+  },
+  "exclusion": [
+    {
+      "excluded": [
+        "ALPACAUSDT"
+      ],
+      "sharpe": -0.344871562862808,
+      "annual_return": -0.19599343688546278
+    },
+    {
+      "excluded": [
+        "ALPACAUSDT",
+        "GOATUSDT"
+      ],
+      "sharpe": -0.3462233217637195,
+      "annual_return": -0.19652735606747573
+    },
+    {
+      "excluded": [
+        "ALPACAUSDT",
+        "GOATUSDT",
+        "WLDUSDT"
+      ],
+      "sharpe": -0.36565587182243725,
+      "annual_return": -0.19640841268707732
+    }
+  ],
+  "yearly": {
+    "2024": 0.1362373660132863,
+    "2025": -0.10751697595454535,
+    "2026": -0.33058602376397705
+  },
+  "rolling_6m": {
+    "count": 841,
+    "positive_share": 0.44351961950059454
+  },
+  "regimes": {
+    "bear": {
+      "days": 182,
+      "total_return": -0.27669283020083124,
+      "sharpe": -1.1169407595568275,
+      "max_drawdown": 0.3393771861124836
+    },
+    "bull": {
+      "days": 366,
+      "total_return": 0.3067858477578893,
+      "sharpe": 0.8307163700111933,
+      "max_drawdown": 0.18889751897414186
+    },
+    "sideways": {
+      "days": 474,
+      "total_return": -0.2818145302454682,
+      "sharpe": -0.4366824573304969,
+      "max_drawdown": 0.45832177980432454
+    }
+  },
+  "benchmarks": {
+    "btc_buy_hold": {
+      "total_return": 0.5970095271111773,
+      "sharpe": 0.5894950554585432,
+      "max_drawdown": 0.5373871414307064
+    },
+    "equal_weight_long": {
+      "total_return": -0.6984535306640309,
+      "sharpe": -0.15868894498235436,
+      "max_drawdown": 0.8343349602596144
+    }
+  },
+  "corr_btc": -0.12658762650804264,
+  "top_coins": {
+    "best": {
+      "BCHUSDT": 181.1443042080354,
+      "WIFUSDT": 182.1848358869869,
+      "WLDUSDT": 220.66671022081596,
+      "GOATUSDT": 220.90769012188576,
+      "ALPACAUSDT": 803.1884449099359
+    },
+    "worst": {
+      "MYXUSDT": -976.506475621858,
+      "POWERUSDT": -578.2020258039789,
+      "PIPPINUSDT": -434.9145911586355,
+      "1000PEPEUSDT": -393.2867688909843,
+      "FHEUSDT": -293.17198595218366
+    }
+  },
+  "criteria": {
+    "plus_to_deposit": {
+      "value": -0.011470712189570742,
+      "threshold": "> 0% / month",
+      "pass": false
+    },
+    "monthly_return_reference": {
+      "value": -0.011470712189570742,
+      "threshold": ">= 1.5% / month (reference)",
+      "pass": false
+    },
+    "annual_return": {
+      "value": -0.12920556423558283,
+      "threshold": ">= 20%",
+      "pass": false
+    },
+    "max_drawdown": {
+      "value": 0.6320882101901821,
+      "threshold": "<= 25%",
+      "pass": false
+    },
+    "sharpe": {
+      "value": -0.11683064271361071,
+      "threshold": ">= 1.0",
+      "pass": false
+    },
+    "cost2_sharpe": {
+      "value": -0.20936260836431622,
+      "threshold": ">= 0.5",
+      "pass": false
+    },
+    "random_percentile": {
+      "value": 0.607,
+      "threshold": ">= 95%",
+      "pass": false
+    },
+    "max_coin_profit_share": {
+      "value": 0.08679684758307742,
+      "threshold": "<= 15%",
+      "pass": true
+    },
+    "positive_6m_windows": {
+      "value": 0.44351961950059454,
+      "threshold": ">= 60%",
+      "pass": false
+    }
+  },
+  "sharpe_check": -0.11683064271361071
+}
